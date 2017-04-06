@@ -1,0 +1,12 @@
+CLS,ED,MR,OCC,REL,GEN,SAL
+Private,Bachelors,Married,Exec-mgr,Husband,Male,>50K
+Private,Bachelors,Married,Prof-specialty,Husband,Male,>50K
+Self-emp,Masters,Married,Exec-mgr,Wife,Male,>50K
+?,HS-grad,Divorced,?,Not-in-family,Male,>50K
+Self-emp,Masters,Married,Admin,Wife,Female,>50K
+Never-worked,7th-8th,Divorced,?,Not-in-family,Male,¡Ü50K
+Self-emp,HS-grad,Never-married,Farming,Own-child,Male,¡Ü50K
+Local-gov,Some-college,Never-married,Admin,Own-child,Female,¡Ü50K
+State-gov,Masters,Divorced,Prof-specialty,Own-child,Male,>50K
+?,Bachelors,Divorced,?,Not-in-family,Female,¡Ü50K
+Self-emp,Some-college,Never-married,Machine-op,Not-in-family,Female,>50K

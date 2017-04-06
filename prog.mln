@@ -1,0 +1,7 @@
+city(cityValue)
+zipcode(zipcodeValue)
+state(stateValue)
+
+1	city(cityValue) , zipcode(zipcodeValue) => state(stateValue)
+1	state(stateValue) , zipcode(zipcodeValue) => city(cityValue)
+1	city(cityValue) , state(stateValue) => zipcode(zipcodeValue)

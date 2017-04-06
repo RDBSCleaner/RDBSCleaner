@@ -1,0 +1,13 @@
+0.4700	city("LittleRock") // prior = 0.8000 ; delta = -0.3300
+0.4200	city("Anchorage") // prior = 0.8000 ; delta = -0.3800
+0.4100	city("Fairbanks") // prior = 0.8000 ; delta = -0.3900
+0.3900	city("Dothan") // prior = 0.8000 ; delta = -0.4100
+0.3800	city("Birmingham") // prior = 0.8000 ; delta = -0.4200
+0.2900	state("AK") // prior = 0.8000 ; delta = -0.5100
+0.2900	state("AL") // prior = 0.8000 ; delta = -0.5100
+0.2600	state("AR") // prior = 0.8000 ; delta = -0.5400
+0.4200	zipcode(99508) // prior = 0.8000 ; delta = -0.3800
+0.3900	zipcode(99507) // prior = 0.8000 ; delta = -0.4100
+0.3900	zipcode(72205) // prior = 0.8000 ; delta = -0.4100
+0.3700	zipcode(35233) // prior = 0.8000 ; delta = -0.4300
+0.3500	zipcode(36301) // prior = 0.8000 ; delta = -0.4500

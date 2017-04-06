@@ -1,0 +1,19 @@
+// Evidence
+Friends(person, person)
+// Some evidence, some query
+Smokes(person)
+// Query
+Cancer(person)
+
+// Rules
+
+// Smokes(x) => Cancer(x)
+//1.5  !Smokes(a1) v Cancer(a1)
+
+// Friends(x, y) => (Smokes(x) <=> Smokes(y))
+//1.1  !Friends(a1,a2) v !Smokes(a1) v Smokes(a2)
+//0.7  !Friends(a1,a2) v !Smokes(a2) v Smokes(a1)
+
+0.1079	!Smokes(v0)  v  Cancer(v0)  //1.0
+0.5374	!Friends(v0, v1)  v !Smokes(v0)  v  Smokes(v1)  //2.0
+4.3053	!Friends(v0, v1)  v !Smokes(v1)  v  Smokes(v0)  //3.0

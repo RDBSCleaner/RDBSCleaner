@@ -1,0 +1,6 @@
+A 2.5MB sample sanitized (with personal information like VIN removed) data from cars.com is provided here. 
+Data like this was used to perform the Amazon Turk experiments. 
+You may run BayesWipe on this in order to see how it operates on real world noise. 
+Note that there is no 'ground truth' file available (creating one would have required the author to go through the whole data tuple by tuple).
+
+Schema: make, model, type, fuel_type, engine, transmission, drivetrain, doors, wheelbase

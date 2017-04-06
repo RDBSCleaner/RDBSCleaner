@@ -1,0 +1,12 @@
+//////////////AVERAGE WEIGHT OF ALL THE ITERATIONS//////////////
+4.7572       !Smokes(v0)  v  Cancer(v0)  //1.0
+-1.6892       !Friends(v0, v1)  v !Smokes(v0)  v  Smokes(v1)  //2.0
+4.1754       !Friends(v0, v1)  v !Smokes(v1)  v  Smokes(v0)  //3.0
+
+
+//////////////WEIGHT OF LAST ITERATION//////////////
+4.7572       !Smokes(v0)  v  Cancer(v0)  //1.0
+-1.6892       !Friends(v0, v1)  v !Smokes(v0)  v  Smokes(v1)  //2.0
+4.1754       !Friends(v0, v1)  v !Smokes(v1)  v  Smokes(v0)  //3.0
+
+

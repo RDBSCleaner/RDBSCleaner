@@ -1,0 +1,2 @@
+CLS,ED,MR,OCC,REL,GEN,SAL
+Private,Bachelors,Ma
