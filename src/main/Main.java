@@ -8,7 +8,7 @@ import java.util.List;
 import data.Domain;
 import data.Rule;
 import data.Tuple;
-import gcc.main.MLNmain;
+import tuffy.main.MLNmain;
 
 public class Main {
 	
@@ -72,7 +72,7 @@ public class Main {
 		
 		String[] learnwt = list.toArray(new String[list.size()]);
 		
-		//MLNmain.main(learnwt);//入口：参数学习 weight learning——using 'Diagonal Newton discriminative learning'
+		MLNmain.main(learnwt);//入口：参数学习 weight learning——using 'Diagonal Newton discriminative learning'
 	}
 	
 }

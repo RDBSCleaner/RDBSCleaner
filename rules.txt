@@ -1,3 +1,2 @@
 1	city(cityValue) => state(stateValue)
 1	zipcode(zipcodeValue) => city(cityValue)
-
