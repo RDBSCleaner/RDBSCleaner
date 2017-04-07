@@ -165,15 +165,26 @@ public class Rule {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		for(int i=0; i<header.length; i++){
-			for(int k=0; k<tupleList.size(); k++){
-				content += header[i]+"("+tupleList.get(k).getContext()[i]+")";
-				writeToFile(content, outFile);
-				//System.out.println(content);
-				content = "";
-				
-			}
-		}
+        for(int i=0; i<header.length; i++){
+            HashMap<String,Integer> map = new HashMap<>();
+            for(int k=0; k<tupleList.size(); k++){
+                String item = tupleList.get(k).getContext()[i];
+                if (!map.containsKey(item)){
+                    map.put(item,1);
+                }
+                else {
+                    map.put(item,map.get(item)+1);
+                }
+                // 用HashMap存储每一个item出现的次数
+            }
+            for (Map.Entry<String, Integer> entry : map.entrySet()) {
+                double pre = (double)entry.getValue()/tupleList.size();
+                DecimalFormat format = new DecimalFormat("#0.00");
+                content += format.format(pre) + " ";
+                content += header[i]+"("+entry.getKey()+")" + "\n";
+            }
+        }
+        writeToFile(content, outFile);
 		System.out.println(">> Writing Completed!");
 	}
 	
