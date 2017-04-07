@@ -29,6 +29,11 @@ public class Main {
 		List<Tuple> rules = rule.loadRules(dataURL, rulesFile, splitString);
 		Domain domain = new Domain();
 		
+		rule.initData(dataURL, splitString, ifHeader);
+		//rule.formatRules(rulesFile, rule_outFile);	//格式化Rules, 将命题公式转换为一阶谓词逻辑形式
+		rule.formatEvidence(evidence_outFile);
+		
+		
 		//区域划分 形成Domains
 		domain.init(dataURL, splitString, ifHeader, rules);
 		//对每个Domain执行group by key操作
@@ -55,9 +60,7 @@ public class Main {
 		
 		domain.printDataSet(domain.dataSet);	//打印删除‘后’的数据集内容
 		
-		//rule.initData(dataURL, splitString, ifHeader);
-		//rule.formatRules(rulesFile, rule_outFile);	//格式化Rules, 将命题公式转换为一阶谓词逻辑形式
-		//rule.formatEvidence(evidence_outFile);
+		
 		
 		//调用MLN相关的命令参数
 		ArrayList<String> list = new ArrayList<String>();
@@ -96,7 +99,7 @@ public class Main {
 		
 		String[] learnwt = list.toArray(new String[list.size()]);
 		
-		//MLNmain.main(learnwt);//入口：参数学习 weight learning——using 'Diagonal Newton discriminative learning'
+		MLNmain.main(learnwt);//入口：参数学习 weight learning——using 'Diagonal Newton discriminative learning'
 	}
 	
 }

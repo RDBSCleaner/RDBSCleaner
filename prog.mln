@@ -2,5 +2,6 @@ city(cityValue)
 zipcode(zipcodeValue)
 state(stateValue)
 
-1	city(cityValue) => state(stateValue)
-1	zipcode(zipcodeValue) => city(cityValue)
+3.0476       !city(v0)  v !zipcode(v1)  v  state(v2)  //1.0
+3.0253       !state(v0)  v !zipcode(v1)  v  city(v2)  //2.0
+3.0475       !city(v0)  v !state(v1)  v  zipcode(v2)  //3.0
