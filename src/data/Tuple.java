@@ -2,16 +2,20 @@ package data;
 
 public class Tuple {
 	
-	public String[] reason = null;	//记录Tuple的reason predicates
-	public String[] result = null;	//记录Tuple的result predicates
+	public String[] reason = null;	//记录Tuple的reason value
+	public String[] result = null;	//记录Tuple的result value
 	public int index = -1; //index from 0 to dataset.size;
 	
 	private int[] resultAttributeIndex = null;
 	private int[] reasonAttributeIndex = null;
-	private int[] AttributeIndex = null;
-	private String[] AttributeNames = null; 
-	private String[] TupleContext = null;
 	
+	
+	private String[] AttributeNames = null;	//记录Tuple的所有属性名
+	
+	private String[] TupleContext = null;
+	private int[] AttributeIndex = null;
+	
+	private double[] probablity = null;
 	
 	public Tuple(){}
 	
@@ -23,6 +27,13 @@ public class Tuple {
 		this.reason = new String[reason.length];
 		for(int i=0;i<reason.length;i++){
 			this.reason[i] = reason[i];
+		}
+	}
+	
+	public void setResult(String[] result){
+		this.result = new String[result.length];
+		for(int i=0;i<result.length;i++){
+			this.result[i] = result[i];
 		}
 	}
 	
@@ -91,5 +102,13 @@ public class Tuple {
 
 	public void setAttributeIndex(int[] attributeIndex) {
 		AttributeIndex = attributeIndex;
+	}
+
+	public double[] getProbablity() {
+		return probablity;
+	}
+
+	public void setProbablity(double[] probablity) {
+		this.probablity = probablity;
 	}
 }

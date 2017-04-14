@@ -8,21 +8,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import com.sun.org.apache.xalan.internal.xsltc.runtime.Attributes;
 
 
 public class Domain {
 	
 	public HashMap<Integer,String[]> dataSet = new HashMap<Integer,String[]>();
-	//public List<String[]> dataSet = new ArrayList<String[]>();
+//	public List<String[]> dataSet = new ArrayList<String[]>();
 	public List<HashMap<Integer, Tuple>> domains = null;
-	public List<HashMap<Integer, Tuple>> groups;
+//	public List<HashMap<Integer, Tuple>> groups = null;
 	public List<List<HashMap<Integer, Tuple>>> Domain_to_Groups = null;	//List<groups> 存放group by key后，Domain中包含的group的编号
 	
+	public HashMap<Integer,ConflictTuple> conflicts = new HashMap<Integer,ConflictTuple>();	//记录冲突的元组，并按Domain分类 <DomainID, ConflictTuple>
+	
 	//属性列，如果数据集中没有给出，则构造一个属性列：Attr1,Attr2,Attr3,...,AttrN
-	private String[] header = null; 
+	public String[] header = null; 
 	
 	public Domain(){}
 	
@@ -65,20 +70,41 @@ public class Domain {
 		        		int[] IDs = Rule.findAttributeIndex(attributeNames, header);
 		        		
 		        		String[] reason = curr_rule.reason;
-		        		int[] reasonIDs = Rule.findAttributeIndex(reason, header);
+		        		String[] result = curr_rule.result;
 		        		
+		        		int[] reasonIDs = Rule.findAttributeIndex(reason, header);
+		        		int[] resultIDs = Rule.findResultIDs(IDs, reasonIDs);
 		        		String[] reasonContent = new String[reasonIDs.length];
+		        		String[] resultContent = new String[resultIDs.length];
 		        		String[] tupleContext = new String[IDs.length];
+		        		
+		        		int[] tupleContextID = new int[IDs.length];
+		        		
 		        		int reason_index = 0;
+		        		int result_index = 0;
 		        		for(int j=0; j<IDs.length; j++){
 		        			tupleContext[j] = tuple[IDs[j]];//放入属于该区域的tuple内容
+		        			tupleContextID[j] = IDs[j]; 	//放入对应的ID
 		        			if(ifReason(IDs[j],reasonIDs)){	//如果是reason,则放入reasonContent
 		        				reasonContent[reason_index++] = tuple[IDs[j]];
+		        			}else{
+		        				resultContent[result_index++] = tuple[IDs[j]];
 		        			}
 		        		}
+		        		
 		        		Tuple t = new Tuple();
+		        		
 		        		t.setContext(tupleContext);
+		        		t.setAttributeIndex(tupleContextID);
+		        		
 		        		t.setReason(reasonContent);
+		        		t.setReasonAttributeIndex(reasonIDs);
+		        		
+		        		t.setResult(resultContent);
+		        		t.setResultAttributeIndex(resultIDs);
+		        		
+		        		t.setAttributeNames(attributeNames);
+		        		
 		        		//区域Di划分完毕,放入hashMap
 		        		domains.get(i%rules_size).put(key,t); //<K,V>  K = tuple ID , from 0 to n
 		        	}
@@ -169,7 +195,7 @@ public class Domain {
 			domain = domains.get(i);
 			int domain_size = domain.size();
 			boolean[] flags = new boolean[domain_size];
-			groups = new ArrayList<HashMap<Integer, Tuple>>();
+			List<HashMap<Integer, Tuple>> groups = new ArrayList<HashMap<Integer, Tuple>>();
 			for(int k=0;k<domain_size;k++){
 				Tuple tuple1 = domain.get(k);
 				HashMap<Integer, Tuple> group = new HashMap<Integer, Tuple>();
@@ -192,7 +218,9 @@ public class Domain {
 					}
 				}
 			}
-			Domain_to_Groups.add(groups);
+			if(groups.size()>0){
+				Domain_to_Groups.add(groups);
+			}
 		}
 		int d_index=0;
 		for(List<HashMap<Integer, Tuple>> d: Domain_to_Groups){
@@ -201,6 +229,68 @@ public class Domain {
 		}
 		//printGroup(groups);
 	}
+	
+	/**
+	 * 根据MLN的概率修正错误数据
+	 * */
+	public void correctByMLN(List<List<HashMap<Integer, Tuple>>> Domain_to_Groups, HashMap<String, Double> attributes, String[] header){
+		
+		for(List<HashMap<Integer, Tuple>> groups: Domain_to_Groups){
+			for(int i=0;i<groups.size();i++){
+				HashMap<Integer,Tuple> group = groups.get(i);
+				Iterator<Entry<Integer,Tuple>> iter = group.entrySet().iterator(); 
+				double pre_prob = 0.0;
+				int tupleID = 0;
+				
+				//遍历group
+		        while(iter.hasNext()){ 
+		            Entry<Integer,Tuple> current = iter.next();
+		            Tuple tuple = current.getValue();
+		            String[] resultValues = tuple.result;
+		            int[] resultIDs = tuple.getResultAttributeIndex();
+		            
+		            String key = "";
+		            double prob = 1.0;
+		            //计算该tuple的result probability
+		            for(int j=0;j<resultValues.length;j++){
+		            	
+		            	String result = header[resultIDs[j]]+"("+resultValues[j]+")";
+		            	prob *= attributes.get(result);
+		            }
+		            if(pre_prob<prob){
+		            	pre_prob = prob;
+		            	tupleID = current.getKey();
+		            }
+		        }
+		        Tuple cleanTuple = group.get(tupleID);
+		        iter = group.entrySet().iterator();
+		        
+		        //修正错误的值，即用正确的去替换它
+		        while(iter.hasNext()){ 
+		            Entry<Integer,Tuple> current = iter.next();
+		            int currentKey = current.getKey();
+//		            int[] AttrIDs = cleanTuple.getAttributeIndex();
+//		            String[] values = cleanTuple.getContext();
+//		            String[] tuple = null;
+//		            for(int k=0;k<AttrIDs.length;k++){
+//		            	tuple = dataSet.get(currentKey);
+//		            	tuple[AttrIDs[k]] = values[k];
+//		            }
+//		            dataSet.put(currentKey, tuple);
+		            group.put(current.getKey(), cleanTuple);
+		        }
+			}
+		}
+		
+		//输出修正后的Group结果
+		System.out.println("\n=======After Correct Values By MLN Probability=======");
+		int d_index = 0;
+		for(List<HashMap<Integer, Tuple>> groups: Domain_to_Groups){
+			System.out.println("\n*******Domain "+(++d_index)+"*******");
+			printGroup(groups);
+		}
+	}
+	
 	
 	/**
 	 * 删除重复数据
@@ -216,13 +306,294 @@ public class Domain {
 		}
 	}
 	
+	public static <T> T[] concat(T[] first, T[] second) {  
+		T[] result = Arrays.copyOf(first, first.length + second.length);  
+		System.arraycopy(second, 0, result, first.length, second.length);  
+		return result;  
+	}
+	
+	public static int[] concat(int[] first, int[] second) {  
+		int[] result = Arrays.copyOf(first, first.length + second.length);  
+		System.arraycopy(second, 0, result, first.length, second.length);  
+		return result;  
+	}
+	
+	
 	/**
-	 * 标记重复数据，并执行合并操作
+	 * 合并两个Domain中的tuple部分，它们原属于同一个Tuple
+	 * @param Tuple t1 , Tuple t2
+	 * */
+	public Tuple combineTuple (Tuple t1 , Tuple t2, int[] sameID){
+		Tuple t = new Tuple();
+		if(sameID.length==0){ //不存在相同的属性
+			int[] attributeIndex = concat(t1.getAttributeIndex(), t2.getAttributeIndex());
+			String[] TupleContext = concat(t1.getContext(), t2.getContext());
+
+			t.setContext(TupleContext);
+			t.setAttributeIndex(attributeIndex);
+		}else{ //存在相同的属性
+			int[] t1IDs = t1.getAttributeIndex();
+			int[] t2IDs = t2.getAttributeIndex();
+			int sameIDlength = 0;
+			for(int j=0;j<sameID.length;j++){
+				if(sameID[j]==-1)break;
+				sameIDlength++;
+			}
+			int[] attributeIndex = Arrays.copyOf(t1IDs, t1IDs.length + t2IDs.length - sameIDlength);
+			String[] t1context = t1.getContext();
+			String[] t2context = t2.getContext();
+			String[] TupleContext = Arrays.copyOf(t1context, attributeIndex.length);
+			int k = t1IDs.length;
+			
+			for(int i=0; i<t2IDs.length; i++){
+				for(int ID: sameID){
+					if(ID==-1)break;//初始化为-1，即已遍历完有值的部分
+					if(t2IDs[i]==ID)continue;
+					attributeIndex[k] = t2IDs[i];
+					TupleContext[k++] = t2context[i];
+				}
+			}
+			t.setContext(TupleContext);
+			t.setAttributeIndex(attributeIndex);
+		}
+		return t;
+	}
+	
+	/**
+	 * 比较两个元组Tuple1和Tuple2中是否存在相同属性，但值不同
+	 * */
+	public static boolean checkConflict(Tuple t1, Tuple t2, int[] sameID){
+		boolean result = false;
+		
+		String[] context1 = t1.getContext();
+		String[] context2 = t2.getContext();
+		int[] attributeID1 = t1.getAttributeIndex();
+		int[] attributeID2 = t2.getAttributeIndex();
+		HashMap<Integer, String> map1 = new HashMap<Integer, String>(context1.length);	// MAP<Attribute name,Attribute value>
+		HashMap<Integer, String> map2 = new HashMap<Integer, String>(context2.length);
+		
+		for(int i=0;i<context1.length;i++)
+			map1.put(attributeID1[i], context1[i]);
+		for(int i=0;i<context2.length;i++)
+			map2.put(attributeID2[i], context2[i]);
+		
+		Iterator<Entry<Integer, String>> iter = null;
+		if(context1.length < context2.length){
+			int i=0;
+			iter = map1.entrySet().iterator();
+			while(iter.hasNext()){
+				Entry<Integer, String> entry = iter.next();
+				int tupleID = entry.getKey();
+				String value1 = entry.getValue();
+				String value2 = map2.get(tupleID);
+				if(value2==null)continue;
+				sameID[i++] = tupleID;
+				if(!value1.equals(value2)){//存在冲突
+					result = true;
+					break;
+				}
+			}
+		}else{
+			int i=0;
+			iter = map2.entrySet().iterator();
+			while(iter.hasNext()){
+				Entry<Integer, String> entry = iter.next();
+				int tupleID = entry.getKey();
+				String value1 = entry.getValue();
+				String value2 = map1.get(tupleID);
+				if(value2==null)continue;
+				sameID[i++] = tupleID;
+				if(!value1.equals(value2)){//存在冲突
+					result = true;
+					break;
+				}
+			}
+		}
+		return result;
+	}
+	
+	public HashMap<Integer, Tuple> combineGroup(List<Integer> keyList, HashMap<Integer, Tuple> group1, HashMap<Integer, Tuple> group2, int DomianID1, int DomianID2){
+		HashMap<Integer, Tuple> newGroup = new HashMap<Integer, Tuple>(group1.size());
+		for(Integer key: keyList){
+			Tuple t1 = group1.get(key);
+			Tuple t2 = group2.get(key);
+			int[] sameID = new int[t1.getAttributeIndex().length];
+			for(int i=0; i<sameID.length; i++){
+				sameID[i] = -1;
+			}
+			if(!checkConflict(t1, t2, sameID)){ //不冲突
+				newGroup.put(key, combineTuple(t1, t2, sameID));
+			}else{
+				group1.remove(key);
+				group2.remove(key);
+				keyList.remove(key);
+				
+				//根据DomainID将冲突的Tuple记录下来
+				addConflict(DomianID1, t1);
+				addConflict(DomianID2, t2);
+			}
+		}
+		return newGroup;
+	}
+	
+	public void addConflict(int DomianID, Tuple t){
+		ConflictTuple oldct = conflicts.get(DomianID);
+		if(null == oldct){ 	//该Domain中尚未添加冲突元组
+			ConflictTuple newct = new ConflictTuple();
+			newct.tuples.add(t);
+			conflicts.put(DomianID, newct);
+		}else{
+			oldct.tuples.add(t);
+		}
+	}
+	
+	/**
+	 * 根据key值求两个group的交集
+	 * */
+	public static List<Integer> interset(Integer[] a1,Integer[] a2){  
+    	int len1 = a1.length;  
+        int len2 = a2.length;  
+        int len = a1.length+a2.length;  
+        Map<Integer,Integer> m = new HashMap<Integer,Integer>(len);  
+        List<Integer> ret = new ArrayList<Integer>();  
+        for(int i=0;i<len1;i++){  
+            if(m.get(a1[i])==null)  
+                m.put(a1[i], 1);  
+        }  
+        for(int i=0;i<len2;i++){  
+            if(m.get(a2[i])!=null)  
+                m.put(a2[i],2);  
+        }  
+        for(java.util.Map.Entry<Integer, Integer> e:m.entrySet()){  
+            if(e.getValue()==2){  
+                ret.add(e.getKey());  
+            }  
+        }  
+//        Integer[] retArray={};  
+//        return ret.toArray(retArray);  
+        return ret;
+    }  
+	
+	
+	/**
+	 * 返回该group的所有key值
+	 * */
+	public static Integer[] calculateKeys(HashMap<Integer, Tuple> group){
+		Integer[] keys = new Integer[group.size()];
+		Iterator<Entry<Integer, Tuple>> iter = group.entrySet().iterator();
+		int i = 0;
+		while(iter.hasNext()){
+			Entry<Integer, Tuple> entry = (Entry<Integer, Tuple>) iter.next();
+			keys[i++] = entry.getKey();
+		}
+		return keys;
+	}
+	
+	public List<List<Integer>> combineDomain(List<List<HashMap<Integer, Tuple>>> Domain_to_Groups){
+		
+		//只有一个Domain，不需要合并
+		if(Domain_to_Groups.size() == 1)return null;
+		
+		List<HashMap<Integer, Tuple>> pre_groups = Domain_to_Groups.get(0);
+		
+		List<List<Integer>> keysList = new ArrayList<List<Integer>>(pre_groups.size());
+		
+		int preDomainID = 0;
+		int curDomainID = 0;
+		
+		//第一个Domain中所有group的keyList
+		for(HashMap<Integer, Tuple> group: pre_groups){
+			keysList.add(Arrays.asList(calculateKeys(group)));
+		}
+		
+		for(int i=1;i<Domain_to_Groups.size();i++){
+			curDomainID = i;
+			
+			List<HashMap<Integer, Tuple>> cur_groups = Domain_to_Groups.get(i);
+			int pre_groups_index = 0;
+			int pre_groups_size = pre_groups.size();
+			int cur_groups_index = 0;
+			int cur_groups_size = cur_groups.size();
+			
+			boolean[] flags = new boolean[cur_groups_size];
+			
+			while(pre_groups_index < pre_groups_size && cur_groups_index < cur_groups_size){
+				if(flags[pre_groups_index]){
+					pre_groups_index++;
+					continue;
+				}
+				HashMap<Integer, Tuple> cur_group = cur_groups.get(cur_groups_index);
+				HashMap<Integer, Tuple> pre_group = pre_groups.get(pre_groups_index);
+				
+				//求两个group的交集
+				List<Integer> keyList = interset(calculateKeys(pre_group) , calculateKeys(cur_group));
+				if(keyList.size()!=0){ //如果存在交集,更新keysList,进行下一个group的匹配
+					preDomainID = i;
+					pre_group = combineGroup(keyList, pre_group, cur_group, preDomainID, curDomainID);
+					keysList.set(pre_groups_index, keyList);
+					pre_groups_index++;
+					flags[cur_groups_index]=true;
+					continue;
+					
+				}
+				if(cur_groups_index == (cur_groups_size-1)){
+					cur_groups_index=0;
+				}else{
+					cur_groups_index++;
+				}
+			}
+			for(int k=0;k<flags.length;k++){
+				if(!flags[k]) keysList.remove(k);
+			}
+		}
+		
+		//===========test==========
+		int d_index = 0;
+		for(List<HashMap<Integer, Tuple>> groups: Domain_to_Groups){
+			System.out.println("\n*******Domain "+(++d_index)+"*******");
+			printGroup(groups);
+		}
+		 //===========test==========
+		
+		System.out.println(">>> Fix the error values...");
+		
+        for(List<HashMap<Integer, Tuple>> groups: Domain_to_Groups){
+        	for(HashMap<Integer, Tuple> group: groups){
+                Iterator<Entry<Integer, Tuple>>iter = group.entrySet().iterator();
+                
+                //修正错误的值，即用正确的去替换它
+                while(iter.hasNext()){ 
+                    Entry<Integer,Tuple> entry = iter.next();
+                    int currentKey = entry.getKey();
+                    Tuple cleanTuple = entry.getValue();
+                    int[] AttrIDs = cleanTuple.getAttributeIndex();
+                    String[] values = cleanTuple.getContext();
+                    String[] tuple = null;
+                    for(int k=0;k<AttrIDs.length;k++){
+                    	tuple = dataSet.get(currentKey);
+                    	tuple[AttrIDs[k]] = values[k];
+                    }
+                    dataSet.put(currentKey, tuple);
+                }
+        	}
+		}
+        System.out.println(">>> Completed!");
+        
+		return keysList;
+	}
+	
+	
+	/**
+	 * 标记重复数据
 	 * */
 	public List<List<Integer>> checkDuplicate(List<List<HashMap<Integer, Tuple>>> Domain_to_Groups){
 		
 		List<List<Integer>> keyList_list = new ArrayList<List<Integer>>();
 		int round = 0;
+
+		if(Domain_to_Groups.size()<2){	//不存在重复数据
+			return keyList_list;
+		}
 		
 		for(List<HashMap<Integer, Tuple>> groups: Domain_to_Groups){
 			if(round == 0){	//第一次循环,标记第一个Domain的groups中的重复数据
@@ -233,32 +604,30 @@ public class Domain {
 						keyList.add(key);
 					}
 					keyList_list.add(keyList); 	//第一个Domain中，有多少个group 就有多少个keyList_list
-					round++;
 				}
+				round++;
 			}else{
-				int index=0;
-				for(List<Integer> list: keyList_list){
-					for(; index<groups.size(); index++){
-						HashMap<Integer, Tuple> group = groups.get(index);
-						boolean result = false;
-						for(int i=0;i<list.size();i++){
-							int key = list.get(i);
-							Iterator iter = group.entrySet().iterator();
-							Entry entry = (Entry) iter.next();
-							int currentKey = (int)entry.getKey();
-						    if(currentKey > key)break;
-							result = group.containsKey(key);
-							if(!result){	//如果不存在，则删掉keyList中的这个key
-								list.remove(i);
-							}
+
+				for(int k=0;k<keyList_list.size();k++){
+					List<Integer> keyList = keyList_list.get(k);
+					List<Integer> newList = new ArrayList<Integer>();
+					for(int i=0;i<keyList.size();i++){
+						int key = keyList.get(i);
+						
+						for(int index = 0;index < groups.size();index++){
+							HashMap<Integer, Tuple> group = groups.get(index);
+							if(group.containsKey(key)){
+								newList.add(key);
+								break;
+							}else continue;
 						}
 					}
-					if(list.size()<=1){	//该group中不存在重复数据
-						keyList_list.remove(list);
-						return null;
+					if(newList.size()==0){
+						keyList_list.remove(keyList);
+					}else{
+						keyList_list.set(k, newList);
 					}
 				}
-				
 			}
 		}
 		//合并完所有区域
@@ -331,7 +700,7 @@ public class Domain {
 	 * @param HashMap<Integer, String[]> dataSet
 	 * */
 	public void printDataSet(HashMap<Integer, String[]> dataSet){
-		System.out.println("==========DataSet Content==========");
+		System.out.println("\n==========DataSet Content==========");
 		
 		Iterator iter = dataSet.entrySet().iterator();
 		while (iter.hasNext()) {

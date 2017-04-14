@@ -3,7 +3,10 @@ package main;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
 import data.Domain;
 import data.Rule;
@@ -30,36 +33,10 @@ public class Main {
 		Domain domain = new Domain();
 		
 		rule.initData(dataURL, splitString, ifHeader);
-		//rule.formatRules(rulesFile, rule_outFile);	//格式化Rules, 将命题公式转换为一阶谓词逻辑形式
+		
+		//rule.formatRules(rulesFile, rule_outFile);	//格式化Rules, 将命题公式转换为一阶谓词逻辑形式 (不需要执行，删掉)
+		
 		rule.formatEvidence(evidence_outFile);
-		
-		
-		//区域划分 形成Domains
-		domain.init(dataURL, splitString, ifHeader, rules);
-		//对每个Domain执行group by key操作
-		domain.groupByKey(domain.domains, rules);
-		List<List<Integer>> keyList_list = domain.checkDuplicate(domain.Domain_to_Groups);
-		
-		
-		System.out.println("\n\tDuplicate keys: ");
-		int c=0;
-		for(List<Integer> keyList: keyList_list){
-			System.out.print("\tGroup "+(++c)+": ");
-			for(int key: keyList){
-				System.out.print(key+" ");
-			}
-			System.out.println();
-		}
-		System.out.println();
-		
-		
-		
-		domain.printDataSet(domain.dataSet);	//打印删除‘前’的数据集内容
-		
-		domain.deleteDuplicate(keyList_list, domain.dataSet);
-		
-		domain.printDataSet(domain.dataSet);	//打印删除‘后’的数据集内容
-		
 		
 		
 		//调用MLN相关的命令参数
@@ -97,9 +74,60 @@ public class Main {
 		String weightFileURL = "out.txt";
 		list.add(weightFileURL);
 		
+		String noDropDB = "-keepData";
+		list.add(noDropDB);
+
+		
 		String[] learnwt = list.toArray(new String[list.size()]);
 		
-		MLNmain.main(learnwt);//入口：参数学习 weight learning——using 'Diagonal Newton discriminative learning'
+		HashMap<String, Double> attributes = MLNmain.main(learnwt);	//入口：参数学习 weight learning——using 'Diagonal Newton discriminative learning'
+
+		//打印MLN marginal计算得到的概率
+		Iterator<Entry<String, Double>> iter = attributes.entrySet().iterator(); 
+        while(iter.hasNext()){ 
+            Entry<String, Double> me = iter.next() ; 
+            System.out.println(me.getKey() + " --> " + me.getValue()) ; 
+        }
+        
+        //区域划分 形成Domains
+        domain.init(dataURL, splitString, ifHeader, rules);
+        //对每个Domain执行group by key操作
+        domain.groupByKey(domain.domains, rules);
+      		
+        //根据MLN的概率修正错误数据
+        domain.correctByMLN(domain.Domain_to_Groups, attributes, domain.header);
+        
+        System.out.println(">>> Find Duplicate Values...");
+        
+        List<List<Integer>> keysList = domain.combineDomain(domain.Domain_to_Groups); 	//返回所有重复数组的tupleID
+        
+        System.out.println("\n\tDuplicate keys: ");
+        int c=0;
+        if(keysList.isEmpty())System.out.println("\tNo duplicate exists.");
+        for(List<Integer> keyList: keysList){
+        	System.out.print("\tGroup "+(++c)+": ");
+        	for(int key: keyList){
+        		System.out.print(key+" ");
+        	}
+      		System.out.println();
+      	}
+      	System.out.println();
+      	
+      	System.out.println(">>> Delete duplicate tuples");
+      	
+      	//执行去重操作
+      	domain.deleteDuplicate(keysList, domain.dataSet);
+      	
+      	System.out.println(">>> completed!");
+
+      	//打印删除‘后’的数据集内容
+      	domain.printDataSet(domain.dataSet);
+      	
+//        domain.printDomainContent(domain.domains);
+        //标记重复数据
+//        List<List<Integer>> keyList_list = domain.checkDuplicate(domain.Domain_to_Groups);
+      	
+      		
 	}
 	
 }

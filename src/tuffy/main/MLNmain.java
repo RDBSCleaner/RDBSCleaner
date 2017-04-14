@@ -2,6 +2,7 @@ package tuffy.main;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashMap;
 
 import tuffy.learn.DNLearner;
 import tuffy.learn.MultiCoreSGDLearner;
@@ -12,8 +13,10 @@ import tuffy.util.UIMan;
  * The Main.
  */
 public class MLNmain {
-	public static void main(String[] args) throws SQLException, IOException {
+	
+	public static HashMap<String, Double> main(String[] args) throws SQLException, IOException {
 		
+		HashMap<String, Double> attributes = new HashMap<String, Double>();
 		//BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		/*String[] str = null;
 		try {
@@ -27,14 +30,14 @@ public class MLNmain {
 		
 		UIMan.println("+++++++++ This is " + Config.product_name + "! +++++++++");
 		if(options == null){
-			return;
+			return null;
 		}
 		
 		if(!options.isDLearningMode){
 			// INFERENCE
 			if(!options.disablePartition){
 				
-				new PartInfer().run(options);
+				attributes = new PartInfer().run(options);
 			}else{
 				
 				new NonPartInfer().run(options);
@@ -54,6 +57,7 @@ public class MLNmain {
 				l.run(options);
 			}
 		}
+		return attributes;
 	}
 	
 }

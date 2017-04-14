@@ -62,6 +62,38 @@ public class Rule {
 		return attributeIDs;
 	}
 	
+	/**
+	 * 已知tuple IDs和reason IDs
+	 * 返回结果result值所在列的编号
+	 * @param tuple IDs
+	 * @param reason IDs
+	 * */
+	public static int[] findResultIDs(int[] tupleIDs, int[] reasonIDs){
+		int[] resultIDs = new int[tupleIDs.length-reasonIDs.length];
+		int index=0;
+		ArrayList<Integer> list = new ArrayList<Integer>();
+        //选出属于tupleIDs但不属于reasonIDs的元素, 即resultIDs
+        for(int i = 0; i < tupleIDs.length; ++i) {
+            boolean bContained = false;
+            for(int j = 0; j < reasonIDs.length; ++j) {
+                if (tupleIDs[i] == reasonIDs[j]) {
+                    bContained = true;
+                    break;
+                }
+            }
+            if (!bContained) {
+            	resultIDs[index++] = tupleIDs[i];
+            	//list.add(tupleIDs[i]);
+            }
+        }
+         
+//        int res[] = new int[list.size()];
+//        for(int i = 0; i < list.size(); ++i)
+//            res[i] = list.get(i);
+//		
+		return resultIDs;
+	}
+	
 	public void getHeader(String DBurl, String splitString){
 		try {
 			FileReader reader;

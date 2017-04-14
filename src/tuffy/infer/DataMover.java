@@ -885,6 +885,7 @@ public class DataMover {
 	}
 
 	private String atomToString(Predicate p, ResultSet rs, HashMap<Long,String> cmap){
+		//String line = "";
 		String line = p.getName() + "(";
 		ArrayList<String> cs = new ArrayList<String>();
 		try{
@@ -900,12 +901,14 @@ public class DataMover {
 				if(v.matches("^[0-9].*$") && !StringMan.escapeJavaString(v).contains(" ")){
 					cs.add("" + StringMan.escapeJavaString(v) + "");
 				}else{
-					cs.add("\"" + StringMan.escapeJavaString(v) + "\"");
+					cs.add(StringMan.escapeJavaString(v));
+//					cs.add("\"" + StringMan.escapeJavaString(v) + "\"");
 				}
 			}
 		}catch(Exception e){
 			ExceptionMan.handle(e);
 		}
+//		line += StringMan.commaList(cs) ;
 		line += StringMan.commaList(cs) + ")";
 		return line;
 	}
@@ -1029,7 +1032,11 @@ public class DataMover {
 	 * @param relAtoms
 	 * @param fout
 	 */
-	public void dumpProbsToFile(String relAtoms, String fout){
+	public HashMap<String, Double> dumpProbsToFile(String relAtoms, String fout){
+		//新增byGeCongcong
+		HashMap<String, Double> attributes = new HashMap<String, Double>();
+		//新增byGeCongcong
+		
 		BufferedWriter bufferedWriter = FileMan.getBufferedWriterMaybeGZ(fout);
 		HashMap<Long,String> cmap = db.loadIdSymbolMapFromTable();
 		int digits = 4;
@@ -1059,6 +1066,13 @@ public class DataMover {
 						prior = -1;
 					}
 					String satom = atomToString(p, rs, cmap);
+					
+					
+					//新增byGeCongcong
+					attributes.put(satom, prob);
+					//新增byGeCongcong
+					
+					
 					String line = null;
 					if(Config.output_prolog_format){
 						line = "tuffyPrediction(" + UIMan.decimalRound(digits, prob) +
@@ -1078,6 +1092,7 @@ public class DataMover {
 		}catch (Exception e) {
 			ExceptionMan.handle(e);
 		}
+		return attributes;
 	}
 
 

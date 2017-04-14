@@ -1,5 +1,7 @@
 package tuffy.main;
 
+import java.util.HashMap;
+
 import tuffy.ground.partition.PartitionScheme;
 import tuffy.infer.InferPartitioned;
 import tuffy.infer.MRF;
@@ -13,8 +15,13 @@ import tuffy.util.UIMan;
  */
 public class PartInfer extends Infer{
 
-	public void run(CommandOptions opt){
+	public HashMap<String, Double> run(CommandOptions opt){
 		UIMan.println(">>> Running partition-aware inference.");
+		
+		
+		HashMap<String, Double> attributes = new HashMap<String, Double>();
+		
+		
 		setUp(opt);
 
 		ground();
@@ -89,7 +96,8 @@ public class PartInfer extends Infer{
 			
 			UIMan.println("### Average Cost " + UIMan.decimalRound(2,aveCost));
 			UIMan.println(">>> Writing answer to file: " + mfout);
-			dmover.dumpProbsToFile(mln.relAtoms, mfout);
+			
+			attributes = dmover.dumpProbsToFile(mln.relAtoms, mfout);
 		}
 
 		
@@ -107,6 +115,7 @@ public class PartInfer extends Infer{
 		
 		
 		cleanUp();
+		return attributes;
 	}
 
 }
