@@ -8,12 +8,19 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.*;
+import tuffy.util.Config;
+import org.postgresql.Driver;
 
 public class Rule {
 
@@ -241,9 +248,9 @@ public class Rule {
 		System.out.println(">> Writing Completed!");
 
 		// 连接字符串，格式： "jdbc:数据库驱动名称://数据库服务器ip/数据库名称"
-		String url = "jdbc:postgresql://114.215.144.43/tuffydb";
-		String username = "haobo";
-		String password = "123456";
+		String url = Config.db_url;
+		String username = Config.db_username;
+		String password = Config.db_password;
 
 		try {
 			Class.forName("org.postgresql.Driver").newInstance();
