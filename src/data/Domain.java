@@ -518,10 +518,10 @@ public class Domain {
 			boolean[] flags = new boolean[cur_groups_size];
 			
 			while(pre_groups_index < pre_groups_size && cur_groups_index < cur_groups_size){
-				if(flags[pre_groups_index]){
-					pre_groups_index++;
-					continue;
-				}
+//				if(flags[cur_groups_index]){
+//					cur_groups_index++;
+//					continue;
+//				}
 				HashMap<Integer, Tuple> cur_group = cur_groups.get(cur_groups_index);
 				HashMap<Integer, Tuple> pre_group = pre_groups.get(pre_groups_index);
 				
