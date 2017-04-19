@@ -1,8 +1,10 @@
-0.7300	city(Anchorage) // prior = 0.6000 ; delta = 0.1300
-0.3400	city(Dothan) // prior = 0.4000 ; delta = -0.0600
-0.9400	state(AK) // prior = 0.8000 ; delta = 0.1400
-0.3100	state(AR) // prior = 0.2000 ; delta = 0.1100
-0.0500	zipcode(36301) // prior = 0.4000 ; delta = -0.3500
-0.0400	zipcode(99508) // prior = 0.2000 ; delta = -0.1600
-0.0300	zipcode(99507) // prior = 0.2000 ; delta = -0.1700
-0.0300	zipcode(35233) // prior = 0.2000 ; delta = -0.1700
+0.1700	A(tl) // prior = 0.2300 ; delta = -0.0600
+0.1700	A(mdx) // prior = 0.1500 ; delta = 0.0200
+0.1500	A(c30) // prior = 0.1500 ; delta = 0.0000
+0.1400	A(xc90) // prior = 0.1500 ; delta = -0.0100
+0.1300	A(s40) // prior = 0.0800 ; delta = 0.0500
+0.0800	A(s60) // prior = 0.1500 ; delta = -0.0700
+0.0500	A(v50) // prior = 0.0800 ; delta = -0.0300
+0.5500	B(volvo) // prior = 0.6200 ; delta = -0.0700
+0.4200	B(BValue)
+0.3000	B(acura) // prior = 0.3800 ; delta = -0.0800

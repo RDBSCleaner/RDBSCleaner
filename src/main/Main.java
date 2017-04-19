@@ -23,8 +23,8 @@ public class Main {
 		String rule_outFile = currentDIR + "\\prog.mln";
 		String evidence_outFile = currentDIR + "\\evidence.db";
 		//String dataURL = currentDIR + "\\dataSet\\"+ "car evaluation\\car.data";
-		String dataURL = currentDIR + "\\dataSet\\"+ "test-city.data";
-		//String dataURL = currentDIR + "\\dataSet\\"+ "car evaluation\\car-nodoor.csv";
+//		String dataURL = currentDIR + "\\dataSet\\"+ "test-city.data";
+		String dataURL = currentDIR + "\\dataSet\\"+ "synthetic-car\\fulldb-part.txt";
 		
 		String splitString = ",";
 		boolean ifHeader = true;
@@ -33,8 +33,6 @@ public class Main {
 		Domain domain = new Domain();
 		
 		rule.initData(dataURL, splitString, ifHeader);
-		
-		//rule.formatRules(rulesFile, rule_outFile);	//格式化Rules, 将命题公式转换为一阶谓词逻辑形式 (不需要执行，删掉)
 		
 		rule.formatEvidence(evidence_outFile);
 		
@@ -123,9 +121,7 @@ public class Main {
       	//打印删除‘后’的数据集内容
       	domain.printDataSet(domain.dataSet);
       	
-//        domain.printDomainContent(domain.domains);
-        //标记重复数据
-//        List<List<Integer>> keyList_list = domain.checkDuplicate(domain.Domain_to_Groups);
+      	domain.printConflicts(domain.conflicts);
       	
       		
 	}
