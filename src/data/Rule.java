@@ -8,12 +8,19 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.*;
+import tuffy.util.Config;
+import org.postgresql.Driver;
 
 public class Rule {
 
@@ -197,27 +204,82 @@ public class Rule {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+		int index = 1;
+		class IndexAndCount{
+			int count;
+			int index;
+			int headerIndex;
+			IndexAndCount(int count,int headerIndex){
+				this.count = count;
+				this.index = 0;
+				this.headerIndex = headerIndex;
+			}
+			public void increase(){count++;}
+			public void setIndex(int index){this.index = index;}
+			public double getCount(){return (double)count;}
+			public int getIndex() {return index;}
+			public int getHeaderIndex() {return headerIndex;}
+		}
+		HashMap<String,IndexAndCount> map = new HashMap<>();
         for(int i=0; i<header.length; i++){
-            HashMap<String,Integer> map = new HashMap<>();
             for(int k=0; k<tupleList.size(); k++){
                 String item = tupleList.get(k).getContext()[i];
                 if (!map.containsKey(item)){
-                    map.put(item,1);
+                    map.put(item,new IndexAndCount(1,i));
                 }
                 else {
-                    map.put(item,map.get(item)+1);
+                    map.get(item).increase();
                 }
-                // 用HashMap存储每一个item出现的次数
-            }
-            for (Map.Entry<String, Integer> entry : map.entrySet()) {
-                double pre = (double)entry.getValue()/tupleList.size();
-                DecimalFormat format = new DecimalFormat("#0.00");
-                content += format.format(pre) + " ";
-                content += header[i]+"("+entry.getKey()+")" + "\n";
             }
         }
+		for (Map.Entry<String, IndexAndCount> entry : map.entrySet()) {
+            if (entry.getValue().getIndex()==0){
+                entry.getValue().setIndex(index);
+                index++;
+            }
+            System.out.println(entry.getValue().getIndex()+' '+entry.getKey());
+			double pre = entry.getValue().getCount()/tupleList.size();
+			DecimalFormat format = new DecimalFormat("#0.00");
+			content += format.format(pre) + " ";
+			content += header[entry.getValue().getHeaderIndex()]+"("+entry.getKey()+")" + "\n";
+		}
         writeToFile(content, outFile);
 		System.out.println(">> Writing Completed!");
+
+		// 连接字符串，格式： "jdbc:数据库驱动名称://数据库服务器ip/数据库名称"
+		String url = Config.db_url;
+		String username = Config.db_username;
+		String password = Config.db_password;
+
+		try {
+			Class.forName("org.postgresql.Driver").newInstance();
+			Connection conn = DriverManager.getConnection(url, username, password);
+			Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			ResultSet rs;
+			String sql = "DROP TABLE temp;";
+			stmt.execute(sql);
+			sql = "CREATE TABLE temp(";
+			for(int i=0; i<header.length; i++){
+				sql += i==header.length-1?header[i]+" bigint);":header[i]+" bigint,";
+			}
+			System.out.println(sql);
+			stmt.execute(sql);
+			for (Tuple t : tupleList){
+				sql = "INSERT INTO temp VALUES(";
+				for (int i = 0;i < t.getContext().length; i++){
+					String item = t.getContext()[i];
+					sql += i==t.getContext().length-1?map.get(item).getIndex():map.get(item).getIndex() + ",";
+				}
+				sql += ");";
+				stmt.execute(sql);
+			}
+			stmt.close();
+			conn.close();
+		}
+		catch (Exception e){
+			e.printStackTrace();
+		}
 	}
 	
 	/**

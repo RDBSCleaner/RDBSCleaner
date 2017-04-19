@@ -1029,6 +1029,18 @@ public class Grounding {
 
 					
 					+ " WHERE " + c.sqlWhereBindings;
+
+					/*--------------    剪枝操作   --------------*/
+                    sql += " AND 0 < (SELECT count(*) FROM public.temp WHERE ";
+                    int i = 1;
+                    for (Literal t: c.getRegLiterals()) {
+                        sql += t.getPred().getName() + "=t" + i + "." + t.getPred().getName() + "Value1";
+                        i++;
+                        sql += i<=c.getRegLiterals().size()?" AND ":") ";
+                    }
+					System.out.println("prune,line 1040");
+					/*--------------    剪枝操作end   --------------*/
+
 					if(!conds.isEmpty()) {
 						sql += " AND " + SQLMan.andSelCond(conds);
 					}
