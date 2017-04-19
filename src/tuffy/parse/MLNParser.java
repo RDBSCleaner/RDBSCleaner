@@ -1,6 +1,11 @@
-// $ANTLR 3.2 Sep 23, 2009 12:02:23 MLN.g 2012-05-09 08:57:43
+// $ANTLR 3.2 Sep 23, 2009 12:02:23 MLN.g 2017-04-18 11:15:45
 
 package tuffy.parse;
+import tuffy.mln.*;
+import tuffy.ra.*;
+import tuffy.util.*;
+
+
 import org.antlr.runtime.*;
 import java.util.Stack;
 import java.util.List;
@@ -10,73 +15,69 @@ import java.util.HashMap;
 
 import org.antlr.runtime.tree.*;
 
-import tuffy.mln.*;
-import tuffy.ra.*;
-import tuffy.util.*;
-
 public class MLNParser extends Parser {
     public static final String[] tokenNames = new String[] {
         "<invalid>", "<EOR>", "<DOWN>", "<UP>", "WS", "COMMENT", "NOT", "PLUS", "MINUS", "ASTERISK", "PERIOD", "EXIST", "IMPLIES", "ESC", "STRING", "HEXDIGIT", "INTEGER", "FLOAT", "NUMBER", "EXPONENT", "ID", "'**'", "'@'", "'('", "','", "')'", "'FUNCTIONAL DEPENDENCY'", "'FD'", "':'", "';'", "'->'", "'[Label]'", "'[+Label]'", "'[Label+]'", "'#'", "'$'", "':-'", "'['", "']'", "'priorProb'", "'='", "':='", "'v'", "'||'", "'OR'", "'&&'", "'AND'", "'NOT'", "'<>'", "'<'", "'<='", "'>'", "'>='", "'!='", "'%'", "'/'", "'&'", "'|'", "'^'", "'<<'", "'>>'", "'~'"
     };
-    public static final int EXPONENT=19;
-    public static final int T__29=29;
-    public static final int T__28=28;
-    public static final int T__27=27;
-    public static final int T__26=26;
-    public static final int T__25=25;
-    public static final int T__24=24;
-    public static final int T__23=23;
-    public static final int ESC=13;
-    public static final int T__22=22;
-    public static final int T__21=21;
-    public static final int FLOAT=17;
-    public static final int NOT=6;
-    public static final int ID=20;
-    public static final int T__61=61;
-    public static final int EOF=-1;
-    public static final int T__60=60;
-    public static final int ASTERISK=9;
+    public static final int IMPLIES=12;
+    public static final int T__50=50;
+    public static final int MINUS=8;
+    public static final int T__59=59;
     public static final int T__55=55;
     public static final int T__56=56;
     public static final int T__57=57;
     public static final int T__58=58;
+    public static final int ID=20;
     public static final int T__51=51;
     public static final int T__52=52;
     public static final int T__53=53;
     public static final int T__54=54;
-    public static final int T__59=59;
-    public static final int PLUS=7;
-    public static final int COMMENT=5;
-    public static final int T__50=50;
+    public static final int HEXDIGIT=15;
     public static final int INTEGER=16;
-    public static final int T__42=42;
-    public static final int T__43=43;
-    public static final int T__40=40;
-    public static final int T__41=41;
-    public static final int T__46=46;
-    public static final int IMPLIES=12;
-    public static final int T__47=47;
-    public static final int T__44=44;
-    public static final int T__45=45;
-    public static final int PERIOD=10;
-    public static final int T__48=48;
-    public static final int T__49=49;
+    public static final int T__60=60;
+    public static final int EXIST=11;
     public static final int NUMBER=18;
-    public static final int MINUS=8;
-    public static final int T__30=30;
-    public static final int T__31=31;
-    public static final int T__32=32;
-    public static final int WS=4;
+    public static final int T__61=61;
+    public static final int NOT=6;
+    public static final int T__26=26;
+    public static final int T__27=27;
+    public static final int T__28=28;
+    public static final int T__29=29;
+    public static final int PERIOD=10;
+    public static final int T__22=22;
+    public static final int T__23=23;
+    public static final int T__24=24;
+    public static final int T__25=25;
+    public static final int T__21=21;
+    public static final int PLUS=7;
+    public static final int FLOAT=17;
+    public static final int COMMENT=5;
+    public static final int T__37=37;
+    public static final int ESC=13;
+    public static final int T__38=38;
+    public static final int T__39=39;
     public static final int T__33=33;
     public static final int T__34=34;
     public static final int T__35=35;
     public static final int T__36=36;
-    public static final int T__37=37;
-    public static final int T__38=38;
-    public static final int T__39=39;
+    public static final int WS=4;
+    public static final int EOF=-1;
+    public static final int T__30=30;
+    public static final int T__31=31;
+    public static final int T__32=32;
+    public static final int ASTERISK=9;
+    public static final int T__48=48;
+    public static final int T__49=49;
+    public static final int T__44=44;
+    public static final int T__45=45;
     public static final int STRING=14;
-    public static final int HEXDIGIT=15;
-    public static final int EXIST=11;
+    public static final int EXPONENT=19;
+    public static final int T__46=46;
+    public static final int T__47=47;
+    public static final int T__40=40;
+    public static final int T__41=41;
+    public static final int T__42=42;
+    public static final int T__43=43;
 
     // delegates
     // delegators
@@ -1251,11 +1252,11 @@ public class MLNParser extends Parser {
                 {
                 int LA16_1 = input.LA(2);
 
-                if ( (LA16_1==NUMBER) ) {
-                    alt16=1;
-                }
-                else if ( (LA16_1==ID) ) {
+                if ( (LA16_1==ID) ) {
                     alt16=2;
+                }
+                else if ( (LA16_1==NUMBER) ) {
+                    alt16=1;
                 }
                 else {
                     if (state.backtracking>0) {state.failed=true; return retval;}
@@ -3670,11 +3671,11 @@ public class MLNParser extends Parser {
                 {
                 int LA44_1 = input.LA(2);
 
-                if ( (LA44_1==23) ) {
-                    alt44=1;
-                }
-                else if ( (LA44_1==EOF||(LA44_1>=NOT && LA44_1<=IMPLIES)||LA44_1==NUMBER||LA44_1==ID||LA44_1==22||(LA44_1>=24 && LA44_1<=25)||(LA44_1>=31 && LA44_1<=35)||(LA44_1>=37 && LA44_1<=38)||LA44_1==40||(LA44_1>=42 && LA44_1<=46)||(LA44_1>=48 && LA44_1<=60)) ) {
+                if ( (LA44_1==EOF||(LA44_1>=NOT && LA44_1<=IMPLIES)||LA44_1==NUMBER||LA44_1==ID||LA44_1==22||(LA44_1>=24 && LA44_1<=25)||(LA44_1>=31 && LA44_1<=35)||(LA44_1>=37 && LA44_1<=38)||LA44_1==40||(LA44_1>=42 && LA44_1<=46)||(LA44_1>=48 && LA44_1<=60)) ) {
                     alt44=2;
+                }
+                else if ( (LA44_1==23) ) {
+                    alt44=1;
                 }
                 else {
                     if (state.backtracking>0) {state.failed=true; return retval;}
@@ -5477,67 +5478,11 @@ public class MLNParser extends Parser {
 
     // Delegated rules
 
-    public final boolean synpred75_MLN() {
-        state.backtracking++;
-        int start = input.mark();
-        try {
-            synpred75_MLN_fragment(); // can never throw exception
-        } catch (RecognitionException re) {
-            System.err.println("impossible: "+re);
-        }
-        boolean success = !state.failed;
-        input.rewind(start);
-        state.backtracking--;
-        state.failed=false;
-        return success;
-    }
-    public final boolean synpred51_MLN() {
-        state.backtracking++;
-        int start = input.mark();
-        try {
-            synpred51_MLN_fragment(); // can never throw exception
-        } catch (RecognitionException re) {
-            System.err.println("impossible: "+re);
-        }
-        boolean success = !state.failed;
-        input.rewind(start);
-        state.backtracking--;
-        state.failed=false;
-        return success;
-    }
-    public final boolean synpred78_MLN() {
-        state.backtracking++;
-        int start = input.mark();
-        try {
-            synpred78_MLN_fragment(); // can never throw exception
-        } catch (RecognitionException re) {
-            System.err.println("impossible: "+re);
-        }
-        boolean success = !state.failed;
-        input.rewind(start);
-        state.backtracking--;
-        state.failed=false;
-        return success;
-    }
     public final boolean synpred52_MLN() {
         state.backtracking++;
         int start = input.mark();
         try {
             synpred52_MLN_fragment(); // can never throw exception
-        } catch (RecognitionException re) {
-            System.err.println("impossible: "+re);
-        }
-        boolean success = !state.failed;
-        input.rewind(start);
-        state.backtracking--;
-        state.failed=false;
-        return success;
-    }
-    public final boolean synpred77_MLN() {
-        state.backtracking++;
-        int start = input.mark();
-        try {
-            synpred77_MLN_fragment(); // can never throw exception
         } catch (RecognitionException re) {
             System.err.println("impossible: "+re);
         }
@@ -5566,6 +5511,62 @@ public class MLNParser extends Parser {
         int start = input.mark();
         try {
             synpred79_MLN_fragment(); // can never throw exception
+        } catch (RecognitionException re) {
+            System.err.println("impossible: "+re);
+        }
+        boolean success = !state.failed;
+        input.rewind(start);
+        state.backtracking--;
+        state.failed=false;
+        return success;
+    }
+    public final boolean synpred51_MLN() {
+        state.backtracking++;
+        int start = input.mark();
+        try {
+            synpred51_MLN_fragment(); // can never throw exception
+        } catch (RecognitionException re) {
+            System.err.println("impossible: "+re);
+        }
+        boolean success = !state.failed;
+        input.rewind(start);
+        state.backtracking--;
+        state.failed=false;
+        return success;
+    }
+    public final boolean synpred75_MLN() {
+        state.backtracking++;
+        int start = input.mark();
+        try {
+            synpred75_MLN_fragment(); // can never throw exception
+        } catch (RecognitionException re) {
+            System.err.println("impossible: "+re);
+        }
+        boolean success = !state.failed;
+        input.rewind(start);
+        state.backtracking--;
+        state.failed=false;
+        return success;
+    }
+    public final boolean synpred78_MLN() {
+        state.backtracking++;
+        int start = input.mark();
+        try {
+            synpred78_MLN_fragment(); // can never throw exception
+        } catch (RecognitionException re) {
+            System.err.println("impossible: "+re);
+        }
+        boolean success = !state.failed;
+        input.rewind(start);
+        state.backtracking--;
+        state.failed=false;
+        return success;
+    }
+    public final boolean synpred77_MLN() {
+        state.backtracking++;
+        int start = input.mark();
+        try {
+            synpred77_MLN_fragment(); // can never throw exception
         } catch (RecognitionException re) {
             System.err.println("impossible: "+re);
         }
@@ -5859,13 +5860,13 @@ public class MLNParser extends Parser {
     static final String DFA31_eotS =
         "\14\uffff";
     static final String DFA31_eofS =
-        "\7\uffff\1\12\4\uffff";
+        "\7\uffff\1\13\4\uffff";
     static final String DFA31_minS =
         "\1\6\1\24\1\27\1\16\2\30\1\16\1\6\2\30\2\uffff";
     static final String DFA31_maxS =
         "\2\24\1\27\1\24\2\31\1\24\1\52\2\31\2\uffff";
     static final String DFA31_acceptS =
-        "\12\uffff\1\2\1\1";
+        "\12\uffff\1\1\1\2";
     static final String DFA31_specialS =
         "\14\uffff}>";
     static final String[] DFA31_transitionS = {
@@ -5876,8 +5877,8 @@ public class MLNParser extends Parser {
             "\1\6\1\7",
             "\1\6\1\7",
             "\1\11\3\uffff\1\11\1\uffff\1\10",
-            "\2\12\2\uffff\2\12\1\13\5\uffff\1\12\1\uffff\1\12\1\uffff\1"+
-            "\12\1\uffff\1\13\6\uffff\5\12\1\uffff\1\12\4\uffff\1\12",
+            "\2\13\2\uffff\2\13\1\12\5\uffff\1\13\1\uffff\1\13\1\uffff\1"+
+            "\13\1\uffff\1\12\6\uffff\5\13\1\uffff\1\13\4\uffff\1\13",
             "\1\6\1\7",
             "\1\6\1\7",
             "",
@@ -5922,20 +5923,20 @@ public class MLNParser extends Parser {
     static final String DFA28_eofS =
         "\16\uffff";
     static final String DFA28_minS =
-        "\1\14\1\6\2\uffff\12\6";
+        "\1\14\1\6\1\uffff\1\6\1\uffff\11\6";
     static final String DFA28_maxS =
-        "\1\30\1\75\2\uffff\1\74\1\75\3\74\1\75\4\74";
+        "\1\30\1\75\1\uffff\1\74\1\uffff\1\75\3\74\1\75\4\74";
     static final String DFA28_acceptS =
-        "\2\uffff\1\2\1\1\12\uffff";
+        "\2\uffff\1\2\1\uffff\1\1\11\uffff";
     static final String DFA28_specialS =
         "\16\uffff}>";
     static final String[] DFA28_transitionS = {
             "\1\2\13\uffff\1\1",
-            "\2\3\6\uffff\1\2\3\uffff\1\2\1\uffff\1\4\2\uffff\1\2\15\uffff"+
+            "\2\4\6\uffff\1\2\3\uffff\1\2\1\uffff\1\3\2\uffff\1\2\15\uffff"+
             "\1\2\27\uffff\1\2",
             "",
-            "",
             "\4\2\15\uffff\1\5\20\uffff\1\2\7\uffff\15\2",
+            "",
             "\1\2\7\uffff\1\10\3\uffff\1\7\1\uffff\1\6\2\uffff\1\2\27\uffff"+
             "\1\2\15\uffff\1\2",
             "\4\2\15\uffff\1\2\1\11\1\12\16\uffff\1\2\7\uffff\15\2",
@@ -5943,7 +5944,7 @@ public class MLNParser extends Parser {
             "\4\2\16\uffff\1\11\1\12\16\uffff\1\2\7\uffff\15\2",
             "\1\2\7\uffff\1\15\3\uffff\1\14\1\uffff\1\13\2\uffff\1\2\27"+
             "\uffff\1\2\15\uffff\1\2",
-            "\4\2\2\uffff\1\3\13\uffff\1\3\17\uffff\1\2\7\uffff\15\2",
+            "\4\2\2\uffff\1\4\13\uffff\1\4\17\uffff\1\2\7\uffff\15\2",
             "\4\2\15\uffff\1\2\1\11\1\12\16\uffff\1\2\7\uffff\15\2",
             "\4\2\16\uffff\1\11\1\12\16\uffff\1\2\7\uffff\15\2",
             "\4\2\16\uffff\1\11\1\12\16\uffff\1\2\7\uffff\15\2"
@@ -5985,24 +5986,24 @@ public class MLNParser extends Parser {
     static final String DFA32_eotS =
         "\32\uffff";
     static final String DFA32_eofS =
-        "\1\2\11\uffff\1\3\17\uffff";
+        "\1\2\11\uffff\1\4\17\uffff";
     static final String DFA32_minS =
-        "\2\6\2\uffff\12\6\1\7\1\16\12\6";
+        "\2\6\1\uffff\1\6\1\uffff\11\6\1\7\1\16\12\6";
     static final String DFA32_maxS =
-        "\1\52\1\75\2\uffff\1\74\1\75\3\74\1\75\5\74\1\75\1\74\1\75\3\74"+
-        "\1\75\4\74";
+        "\1\52\1\75\1\uffff\1\74\1\uffff\1\75\3\74\1\75\5\74\1\75\1\74\1"+
+        "\75\3\74\1\75\4\74";
     static final String DFA32_acceptS =
-        "\2\uffff\1\2\1\1\26\uffff";
+        "\2\uffff\1\2\1\uffff\1\1\25\uffff";
     static final String DFA32_specialS =
         "\32\uffff}>";
     static final String[] DFA32_transitionS = {
             "\2\2\2\uffff\2\2\6\uffff\1\2\1\uffff\1\2\1\uffff\1\2\10\uffff"+
             "\5\2\1\uffff\1\2\4\uffff\1\1",
-            "\2\3\6\uffff\1\2\3\uffff\1\2\1\uffff\1\4\2\uffff\1\2\15\uffff"+
+            "\2\4\6\uffff\1\2\3\uffff\1\2\1\uffff\1\3\2\uffff\1\2\15\uffff"+
             "\1\2\27\uffff\1\2",
             "",
-            "",
             "\4\2\15\uffff\1\5\20\uffff\1\2\7\uffff\15\2",
+            "",
             "\1\2\7\uffff\1\10\3\uffff\1\7\1\uffff\1\6\2\uffff\1\2\27\uffff"+
             "\1\2\15\uffff\1\2",
             "\4\2\15\uffff\1\2\1\11\1\12\16\uffff\1\2\7\uffff\15\2",
@@ -6010,12 +6011,12 @@ public class MLNParser extends Parser {
             "\4\2\16\uffff\1\11\1\12\16\uffff\1\2\7\uffff\15\2",
             "\1\2\7\uffff\1\15\3\uffff\1\14\1\uffff\1\13\2\uffff\1\2\27"+
             "\uffff\1\2\15\uffff\1\2",
-            "\1\16\1\17\2\2\2\3\6\uffff\1\3\1\uffff\1\3\1\uffff\1\3\10\uffff"+
-            "\5\3\1\uffff\1\3\2\uffff\1\2\1\uffff\1\3\5\uffff\15\2",
+            "\1\16\1\17\2\2\2\4\6\uffff\1\4\1\uffff\1\4\1\uffff\1\4\10\uffff"+
+            "\5\4\1\uffff\1\4\2\uffff\1\2\1\uffff\1\4\5\uffff\15\2",
             "\4\2\15\uffff\1\2\1\11\1\12\16\uffff\1\2\7\uffff\15\2",
             "\4\2\16\uffff\1\11\1\12\16\uffff\1\2\7\uffff\15\2",
             "\4\2\16\uffff\1\11\1\12\16\uffff\1\2\7\uffff\15\2",
-            "\3\2\12\uffff\1\3\23\uffff\1\2\7\uffff\15\2",
+            "\3\2\12\uffff\1\4\23\uffff\1\2\7\uffff\15\2",
             "\1\2\3\uffff\1\2\1\uffff\1\20\2\uffff\1\2\45\uffff\1\2",
             "\4\2\15\uffff\1\21\20\uffff\1\2\7\uffff\15\2",
             "\1\2\7\uffff\1\24\3\uffff\1\23\1\uffff\1\22\2\uffff\1\2\27"+
@@ -6025,8 +6026,8 @@ public class MLNParser extends Parser {
             "\4\2\16\uffff\1\25\1\26\16\uffff\1\2\7\uffff\15\2",
             "\1\2\7\uffff\1\31\3\uffff\1\30\1\uffff\1\27\2\uffff\1\2\27"+
             "\uffff\1\2\15\uffff\1\2",
-            "\4\2\1\3\1\uffff\1\3\13\uffff\1\3\13\uffff\1\3\3\uffff\1\2"+
-            "\2\3\5\uffff\15\2",
+            "\4\2\1\4\1\uffff\1\4\13\uffff\1\4\13\uffff\1\4\3\uffff\1\2"+
+            "\2\4\5\uffff\15\2",
             "\4\2\15\uffff\1\2\1\25\1\26\16\uffff\1\2\7\uffff\15\2",
             "\4\2\16\uffff\1\25\1\26\16\uffff\1\2\7\uffff\15\2",
             "\4\2\16\uffff\1\25\1\26\16\uffff\1\2\7\uffff\15\2"

@@ -431,6 +431,10 @@ public class Domain {
 				//根据DomainID将冲突的Tuple记录下来
 				addConflict(DomianID1, t1);
 				addConflict(DomianID2, t2);
+				
+				if(keyList.isEmpty()){
+					return null;
+				}
 			}
 		}
 		return newGroup;
@@ -530,9 +534,15 @@ public class Domain {
 				if(keyList.size()!=0){ //如果存在交集,更新keysList,进行下一个group的匹配
 					preDomainID = i;
 					pre_group = combineGroup(keyList, pre_group, cur_group, preDomainID, curDomainID);
+					if(null==pre_group){
+//						flags[cur_groups_index]=true;
+						keysList.remove(pre_groups_index);
+						pre_groups_index++;
+						continue;
+					}
 					keysList.set(pre_groups_index, keyList);
 					pre_groups_index++;
-					flags[cur_groups_index]=true;
+//					flags[cur_groups_index]=true;
 					continue;
 					
 				}
@@ -542,9 +552,9 @@ public class Domain {
 					cur_groups_index++;
 				}
 			}
-			for(int k=0;k<flags.length;k++){
-				if(!flags[k]) keysList.remove(k);
-			}
+//			for(int k=0;k<flags.length;k++){
+//				if(!flags[k]) keysList.remove(k);
+//			}
 		}
 		
 		//===========test==========
@@ -710,5 +720,21 @@ public class Domain {
 			System.out.println("key = "+key+" value = "+Arrays.toString(value));
 		}
 		System.out.println();
+	}
+	
+	public void printConflicts(HashMap<Integer,ConflictTuple> conflicts){
+		System.out.println("Conflict tuples:");
+		Iterator<Entry<Integer,ConflictTuple>> iter = conflicts.entrySet().iterator();
+		while(iter.hasNext()){
+			Entry<Integer,ConflictTuple> entry = (Entry<Integer,ConflictTuple>) iter.next();
+			Object key = entry.getKey();
+			ConflictTuple value = entry.getValue();
+			List<Tuple> tuples = value.tuples;
+			System.out.println("key = "+key);
+			for(Tuple t: tuples){
+				System.out.println("Content = "+Arrays.toString(t.getContext()));
+			}
+			
+		}
 	}
 }

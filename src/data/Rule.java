@@ -416,8 +416,10 @@ public class Rule {
 		        }
 	        	int length = tupleList.get(0).getContext().length;
 	        	header = new String[length];
+	        	char c = 64;
 	        	for(int i=1;i<=length;i++){
-	        		header[i-1]="Attr"+i;
+	        		c +=1;
+	        		header[i-1]=String.valueOf(c);
 	        	}
 	        }
 	        
