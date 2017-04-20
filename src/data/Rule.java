@@ -259,8 +259,10 @@ public class Rule {
 			Connection conn = DriverManager.getConnection(url, username, password);
 			Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			ResultSet rs;
-			String sql = "DROP TABLE temp;";
-//			stmt.execute(sql);
+			
+			String sql = "DROP TABLE IF EXISTS temp CASCADE;";
+			stmt.execute(sql);
+			
 			sql = "CREATE TABLE temp(";
 			for(int i=0; i<header.length; i++){
 				sql += i==header.length-1?header[i]+" bigint);":header[i]+" bigint,";
