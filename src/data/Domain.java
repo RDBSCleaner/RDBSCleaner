@@ -56,7 +56,7 @@ public class Domain {
 	        int key = 0; //tuple index
 	        
 	        if(ifHeader && (str = br.readLine()) != null){  //The data has header
-	        	header=str.split(splitString);
+//	        	header=str.split(splitString);
 	        	while((str = br.readLine()) != null) {
 	        		//dataSet.add(str.split(splitString));
 	        		String[] tuple = str.split(splitString);
@@ -112,21 +112,21 @@ public class Domain {
 		        }
 	        }else{
 	        	int length = 0;
-	        	boolean flag = false;
+//	        	boolean flag = false;
 	        	while((str = br.readLine()) != null) {
 	        		//dataSet.add(str.split(splitString));
 	        		String[] tuple = str.split(splitString);
 	        		
 	        		dataSet.put(key, tuple);
 	        		
-	        		if(!flag){
-	        			length = tuple.length;
-			        	header = new String[length];
-			        	for(int i=1;i<=length;i++){
-			        		header[i-1]="Attr"+i;
-			        	}
-			        	flag = true;
-	        		}
+//	        		if(!flag){
+//	        			length = tuple.length;
+//			        	header = new String[length];
+//			        	for(int i=1;i<=length;i++){
+//			        		header[i-1]="Attr"+i;
+//			        	}
+//			        	flag = true;
+//	        		}
 		        	
 	        		for(int i=0;i<rules_size;i++){	//为每一条rule划分数据集区域Di
 		        		Tuple curr_rule = rules.get(i);
@@ -135,20 +135,41 @@ public class Domain {
 		        		int[] IDs = Rule.findAttributeIndex(attributeNames, header);
 		        		
 		        		String[] reason = curr_rule.reason;
-		        		int[] reasonIDs = Rule.findAttributeIndex(reason, header);
+		        		String[] result = curr_rule.result;
 		        		
+		        		int[] reasonIDs = Rule.findAttributeIndex(reason, header);
+		        		int[] resultIDs = Rule.findResultIDs(IDs, reasonIDs);
 		        		String[] reasonContent = new String[reasonIDs.length];
+		        		String[] resultContent = new String[resultIDs.length];
 		        		String[] tupleContext = new String[IDs.length];
+		        		
+		        		int[] tupleContextID = new int[IDs.length];
+		        		
 		        		int reason_index = 0;
+		        		int result_index = 0;
 		        		for(int j=0; j<IDs.length; j++){
 		        			tupleContext[j] = tuple[IDs[j]];//放入属于该区域的tuple内容
+		        			tupleContextID[j] = IDs[j]; 	//放入对应的ID
 		        			if(ifReason(IDs[j],reasonIDs)){	//如果是reason,则放入reasonContent
 		        				reasonContent[reason_index++] = tuple[IDs[j]];
+		        			}else{
+		        				resultContent[result_index++] = tuple[IDs[j]];
 		        			}
 		        		}
+		        		
 		        		Tuple t = new Tuple();
+		        		
 		        		t.setContext(tupleContext);
+		        		t.setAttributeIndex(tupleContextID);
+		        		
 		        		t.setReason(reasonContent);
+		        		t.setReasonAttributeIndex(reasonIDs);
+		        		
+		        		t.setResult(resultContent);
+		        		t.setResultAttributeIndex(resultIDs);
+		        		
+		        		t.setAttributeNames(attributeNames);
+		        		
 		        		//区域Di划分完毕,放入hashMap
 		        		domains.get(i%rules_size).put(key,t); //<K,V>  K = tuple ID , from 0 to n
 		        	}
@@ -248,14 +269,13 @@ public class Domain {
 		            Tuple tuple = current.getValue();
 		            String[] resultValues = tuple.result;
 		            int[] resultIDs = tuple.getResultAttributeIndex();
-		            
-		            String key = "";
 		            double prob = 1.0;
 		            //计算该tuple的result probability
 		            for(int j=0;j<resultValues.length;j++){
-		            	
 		            	String result = header[resultIDs[j]]+"("+resultValues[j]+")";
-		            	prob *= attributes.get(result);
+		            	Double tmpProb = attributes.get(result);
+		            	if(tmpProb == null)continue;//表明该result的概率为1
+		            	prob *= tmpProb;
 		            }
 		            if(pre_prob<prob){
 		            	pre_prob = prob;
@@ -266,19 +286,11 @@ public class Domain {
 		        iter = group.entrySet().iterator();
 		        
 		        //修正错误的值，即用正确的去替换它
-		        while(iter.hasNext()){ 
-		            Entry<Integer,Tuple> current = iter.next();
-		            int currentKey = current.getKey();
-//		            int[] AttrIDs = cleanTuple.getAttributeIndex();
-//		            String[] values = cleanTuple.getContext();
-//		            String[] tuple = null;
-//		            for(int k=0;k<AttrIDs.length;k++){
-//		            	tuple = dataSet.get(currentKey);
-//		            	tuple[AttrIDs[k]] = values[k];
-//		            }
-//		            dataSet.put(currentKey, tuple);
-		            group.put(current.getKey(), cleanTuple);
-		        }
+		        if(cleanTuple!=null)
+			        while(iter.hasNext()){ 
+			            Entry<Integer,Tuple> current = iter.next();
+			            group.put(current.getKey(), cleanTuple);
+			        }
 			}
 		}
 		
@@ -725,6 +737,10 @@ public class Domain {
 	public void printConflicts(HashMap<Integer,ConflictTuple> conflicts){
 		System.out.println("Conflict tuples:");
 		Iterator<Entry<Integer,ConflictTuple>> iter = conflicts.entrySet().iterator();
+		if(conflicts.size()==0){
+			System.out.println("No Conflict tuples.");
+			return;
+		}
 		while(iter.hasNext()){
 			Entry<Integer,ConflictTuple> entry = (Entry<Integer,ConflictTuple>) iter.next();
 			Object key = entry.getKey();
