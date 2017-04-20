@@ -33,7 +33,7 @@ public class Rule {
 	
 	
 	/**
-	 * ·µ»Øµ¥¸öÊôĞÔÃûµÄËùÔÚÁĞµÄ±àºÅ
+	 * è¿”å›å•ä¸ªå±æ€§åçš„æ‰€åœ¨åˆ—çš„ç¼–å·
 	 * @return Attribute Index
 	 * */
 	public static int findAttributeIndex(String name, String[] header){
@@ -46,14 +46,14 @@ public class Rule {
 	}
 	
 	/**
-	 * ·µ»Ø¶à¸öÊôĞÔÃûµÄËùÔÚÁĞµÄ±àºÅ
+	 * è¿”å›å¤šä¸ªå±æ€§åçš„æ‰€åœ¨åˆ—çš„ç¼–å·
 	 * @return Attribute Indexes
 	 * */
 	public static int[] findAttributeIndex(String[] name, String[] header){
 		boolean[] flag = new boolean[header.length];
 		int[] attributeIDs = new int[name.length];
 		
-		for(int i=0;i<flag.length;i++){	//³õÊ¼»¯flag
+		for(int i=0;i<flag.length;i++){	//åˆå§‹åŒ–flag
 			flag[i] = false;
 		}
 		
@@ -70,8 +70,8 @@ public class Rule {
 	}
 	
 	/**
-	 * ÒÑÖªtuple IDsºÍreason IDs
-	 * ·µ»Ø½á¹ûresultÖµËùÔÚÁĞµÄ±àºÅ
+	 * å·²çŸ¥tuple IDså’Œreason IDs
+	 * è¿”å›ç»“æœresultå€¼æ‰€åœ¨åˆ—çš„ç¼–å·
 	 * @param tuple IDs
 	 * @param reason IDs
 	 * */
@@ -79,7 +79,7 @@ public class Rule {
 		int[] resultIDs = new int[tupleIDs.length-reasonIDs.length];
 		int index=0;
 		ArrayList<Integer> list = new ArrayList<Integer>();
-        //Ñ¡³öÊôÓÚtupleIDsµ«²»ÊôÓÚreasonIDsµÄÔªËØ, ¼´resultIDs
+        //é€‰å‡ºå±äºtupleIDsä½†ä¸å±äºreasonIDsçš„å…ƒç´ , å³resultIDs
         for(int i = 0; i < tupleIDs.length; ++i) {
             boolean bContained = false;
             for(int j = 0; j < reasonIDs.length; ++j) {
@@ -122,7 +122,7 @@ public class Rule {
 	}
 	
 	/**
-	 * ´ÓrulesÖĞÌáÈ¡predicates
+	 * ä»rulesä¸­æå–predicates
 	 * @param fileURL
 	 * @param splitString
 	 * @return List<String[]>
@@ -161,7 +161,7 @@ public class Rule {
 	        	t.reason = reason_predicates;
 	        	t.result = result_predicates;
 	        	
-	        	//t.setReasonAttributeIndex(findAttributeIndex(reason_predicates, header));	//±£´æreasonµÄattribute IDs
+	        	//t.setReasonAttributeIndex(findAttributeIndex(reason_predicates, header));	//ä¿å­˜reasonçš„attribute IDs
 	        	
 	        	String[] combine = new String[reason_length+result_length];
 	        	System.arraycopy(reason_predicates, 0, combine, 0, reason_length);
@@ -189,7 +189,7 @@ public class Rule {
 	}
 	
 	/**
-	 * ¸ñÊ½»¯Êı¾İ¼¯£¬Ê¹Æä·ûºÏMLNµÄÊäÈëËùĞè
+	 * æ ¼å¼åŒ–æ•°æ®é›†ï¼Œä½¿å…¶ç¬¦åˆMLNçš„è¾“å…¥æ‰€éœ€
 	 * @param outFile
 	 */
 	public void formatEvidence(String outFile){
@@ -249,7 +249,7 @@ public class Rule {
         writeToFile(content, outFile);
 		System.out.println(">> Writing Completed!");
 
-		// Á¬½Ó×Ö·û´®£¬¸ñÊ½£º "jdbc:Êı¾İ¿âÇı¶¯Ãû³Æ://Êı¾İ¿â·şÎñÆ÷ip/Êı¾İ¿âÃû³Æ"
+		// è¿æ¥å­—ç¬¦ä¸²ï¼Œæ ¼å¼ï¼š "jdbc:æ•°æ®åº“é©±åŠ¨åç§°://æ•°æ®åº“æœåŠ¡å™¨ip/æ•°æ®åº“åç§°"
 		String url = Config.db_url;
 		String username = Config.db_username;
 		String password = Config.db_password;
@@ -259,7 +259,6 @@ public class Rule {
 			Connection conn = DriverManager.getConnection(url, username, password);
 			Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			ResultSet rs;
-			
 			String sql = "DROP TABLE IF EXISTS temp CASCADE;";
 			stmt.execute(sql);
 			
@@ -287,7 +286,7 @@ public class Rule {
 	}
 	
 	/**
-	 * ¸ñÊ½»¯Rules, ½«ÃüÌâ¹«Ê½×ª»»ÎªÒ»½×Î½´ÊÂß¼­ĞÎÊ½
+	 * æ ¼å¼åŒ–Rules, å°†å‘½é¢˜å…¬å¼è½¬æ¢ä¸ºä¸€é˜¶è°“è¯é€»è¾‘å½¢å¼
 	 * @param fileURL
 	 * @param outFile
 	 */
@@ -307,8 +306,8 @@ public class Rule {
         	fw.close();
 	        
 	        while((str = br.readLine()) != null && str.length()!=0){
-	        	firstOrderLogic = "1\t";//add¡¡default weight Ìí¼ÓÄ¬ÈÏÈ¨ÖØweight=1
-	        	String[] line = str.split("=>");//·ÖÎª¡®Ô­Òòreason¡¯ºÍ¡®½á¹ûresult¡¯Á½¸ö²¿·Ö
+	        	firstOrderLogic = "1\t";//addã€€default weight æ·»åŠ é»˜è®¤æƒé‡weight=1
+	        	String[] line = str.split("=>");//åˆ†ä¸ºâ€˜åŸå› reasonâ€™å’Œâ€˜ç»“æœresultâ€™ä¸¤ä¸ªéƒ¨åˆ†
 	        	
 	        	String[] reason = line[0].replaceAll("\\[", "").replaceAll("\\]", "").split(",");
 	        	String[] result = line[1].replaceAll("\\[", "").replaceAll("\\]", "").split(",");
@@ -370,7 +369,7 @@ public class Rule {
 		this.value = value;
 	}
 	
-	public static void writeToFile(String content, String outFile){	//°ÑcontentµÄÄÚÈİ×·¼ÓĞ´ÈëÎÄ¼ş
+	public static void writeToFile(String content, String outFile){	//æŠŠcontentçš„å†…å®¹è¿½åŠ å†™å…¥æ–‡ä»¶
 		BufferedWriter out = null;
 		try {
 			out = new BufferedWriter(new OutputStreamWriter(
@@ -398,7 +397,7 @@ public class Rule {
 	        String str = null;
 	        while((str = br.readLine()) != null){
 	        	
-	        	String[] line = str.split("=>");//·ÖÎª¡®Ô­Òòreason¡¯ºÍ¡®½á¹ûresult¡¯Á½¸ö²¿·Ö
+	        	String[] line = str.split("=>");//åˆ†ä¸ºâ€˜åŸå› reasonâ€™å’Œâ€˜ç»“æœresultâ€™ä¸¤ä¸ªéƒ¨åˆ†
 	        	
 	        	String[] reason = line[0].replaceAll("\\[", "").replaceAll("\\]", "").split(",");
 	        	String[] result = line[1].replaceAll("\\[", "").replaceAll("\\]", "").split(",");
@@ -456,7 +455,7 @@ public class Rule {
 	 * Init Data
 	 * */
 	public void initData(String fileURL,String splitString,boolean ifHeader){//check if the data has header
-		// read file content from file ¶ÁÈ¡ÎÄ¼şÄÚÈİ
+		// read file content from file è¯»å–æ–‡ä»¶å†…å®¹
         FileReader reader;
 		try {
 			reader = new FileReader(fileURL);
