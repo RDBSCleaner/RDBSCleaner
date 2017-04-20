@@ -33,7 +33,7 @@ public class Rule {
 	
 	
 	/**
-	 * 返回单个属性名的所在列的编号
+	 * 杩斿洖鍗曚釜灞炴�у悕鐨勬墍鍦ㄥ垪鐨勭紪鍙�
 	 * @return Attribute Index
 	 * */
 	public static int findAttributeIndex(String name, String[] header){
@@ -46,14 +46,14 @@ public class Rule {
 	}
 	
 	/**
-	 * 返回多个属性名的所在列的编号
+	 * 杩斿洖澶氫釜灞炴�у悕鐨勬墍鍦ㄥ垪鐨勭紪鍙�
 	 * @return Attribute Indexes
 	 * */
 	public static int[] findAttributeIndex(String[] name, String[] header){
 		boolean[] flag = new boolean[header.length];
 		int[] attributeIDs = new int[name.length];
 		
-		for(int i=0;i<flag.length;i++){	//初始化flag
+		for(int i=0;i<flag.length;i++){	//鍒濆鍖杅lag
 			flag[i] = false;
 		}
 		
@@ -70,8 +70,8 @@ public class Rule {
 	}
 	
 	/**
-	 * 已知tuple IDs和reason IDs
-	 * 返回结果result值所在列的编号
+	 * 宸茬煡tuple IDs鍜宺eason IDs
+	 * 杩斿洖缁撴灉result鍊兼墍鍦ㄥ垪鐨勭紪鍙�
 	 * @param tuple IDs
 	 * @param reason IDs
 	 * */
@@ -79,7 +79,7 @@ public class Rule {
 		int[] resultIDs = new int[tupleIDs.length-reasonIDs.length];
 		int index=0;
 		ArrayList<Integer> list = new ArrayList<Integer>();
-        //选出属于tupleIDs但不属于reasonIDs的元素, 即resultIDs
+        //閫夊嚭灞炰簬tupleIDs浣嗕笉灞炰簬reasonIDs鐨勫厓绱�, 鍗硆esultIDs
         for(int i = 0; i < tupleIDs.length; ++i) {
             boolean bContained = false;
             for(int j = 0; j < reasonIDs.length; ++j) {
@@ -122,7 +122,7 @@ public class Rule {
 	}
 	
 	/**
-	 * 从rules中提取predicates
+	 * 浠巖ules涓彁鍙杙redicates
 	 * @param fileURL
 	 * @param splitString
 	 * @return List<String[]>
@@ -161,7 +161,7 @@ public class Rule {
 	        	t.reason = reason_predicates;
 	        	t.result = result_predicates;
 	        	
-	        	//t.setReasonAttributeIndex(findAttributeIndex(reason_predicates, header));	//保存reason的attribute IDs
+	        	//t.setReasonAttributeIndex(findAttributeIndex(reason_predicates, header));	//淇濆瓨reason鐨刟ttribute IDs
 	        	
 	        	String[] combine = new String[reason_length+result_length];
 	        	System.arraycopy(reason_predicates, 0, combine, 0, reason_length);
@@ -189,7 +189,7 @@ public class Rule {
 	}
 	
 	/**
-	 * 格式化数据集，使其符合MLN的输入所需
+	 * 鏍煎紡鍖栨暟鎹泦锛屼娇鍏剁鍚圡LN鐨勮緭鍏ユ墍闇�
 	 * @param outFile
 	 */
 	public void formatEvidence(String outFile){
@@ -249,7 +249,7 @@ public class Rule {
         writeToFile(content, outFile);
 		System.out.println(">> Writing Completed!");
 
-		// 连接字符串，格式： "jdbc:数据库驱动名称://数据库服务器ip/数据库名称"
+		// 杩炴帴瀛楃涓诧紝鏍煎紡锛� "jdbc:鏁版嵁搴撻┍鍔ㄥ悕绉�://鏁版嵁搴撴湇鍔″櫒ip/鏁版嵁搴撳悕绉�"
 		String url = Config.db_url;
 		String username = Config.db_username;
 		String password = Config.db_password;
@@ -258,7 +258,7 @@ public class Rule {
 			Class.forName("org.postgresql.Driver").newInstance();
 			Connection conn = DriverManager.getConnection(url, username, password);
 			Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-			ResultSet rs;
+//			ResultSet rs;
 			String sql = "DROP TABLE IF EXISTS temp CASCADE;";
 			stmt.execute(sql);
 			
@@ -286,7 +286,7 @@ public class Rule {
 	}
 	
 	/**
-	 * 格式化Rules, 将命题公式转换为一阶谓词逻辑形式
+	 * 鏍煎紡鍖朢ules, 灏嗗懡棰樺叕寮忚浆鎹负涓�闃惰皳璇嶉�昏緫褰㈠紡
 	 * @param fileURL
 	 * @param outFile
 	 */
@@ -306,8 +306,8 @@ public class Rule {
         	fw.close();
 	        
 	        while((str = br.readLine()) != null && str.length()!=0){
-	        	firstOrderLogic = "1\t";//add　default weight 添加默认权重weight=1
-	        	String[] line = str.split("=>");//分为‘原因reason’和‘结果result’两个部分
+	        	firstOrderLogic = "1\t";//add銆�default weight 娣诲姞榛樿鏉冮噸weight=1
+	        	String[] line = str.split("=>");//鍒嗕负鈥樺師鍥爎eason鈥欏拰鈥樼粨鏋渞esult鈥欎袱涓儴鍒�
 	        	
 	        	String[] reason = line[0].replaceAll("\\[", "").replaceAll("\\]", "").split(",");
 	        	String[] result = line[1].replaceAll("\\[", "").replaceAll("\\]", "").split(",");
@@ -369,7 +369,7 @@ public class Rule {
 		this.value = value;
 	}
 	
-	public static void writeToFile(String content, String outFile){	//把content的内容追加写入文件
+	public static void writeToFile(String content, String outFile){	//鎶奵ontent鐨勫唴瀹硅拷鍔犲啓鍏ユ枃浠�
 		BufferedWriter out = null;
 		try {
 			out = new BufferedWriter(new OutputStreamWriter(
@@ -397,7 +397,7 @@ public class Rule {
 	        String str = null;
 	        while((str = br.readLine()) != null){
 	        	
-	        	String[] line = str.split("=>");//分为‘原因reason’和‘结果result’两个部分
+	        	String[] line = str.split("=>");//鍒嗕负鈥樺師鍥爎eason鈥欏拰鈥樼粨鏋渞esult鈥欎袱涓儴鍒�
 	        	
 	        	String[] reason = line[0].replaceAll("\\[", "").replaceAll("\\]", "").split(",");
 	        	String[] result = line[1].replaceAll("\\[", "").replaceAll("\\]", "").split(",");
@@ -455,7 +455,7 @@ public class Rule {
 	 * Init Data
 	 * */
 	public void initData(String fileURL,String splitString,boolean ifHeader){//check if the data has header
-		// read file content from file 读取文件内容
+		// read file content from file 璇诲彇鏂囦欢鍐呭
         FileReader reader;
 		try {
 			reader = new FileReader(fileURL);

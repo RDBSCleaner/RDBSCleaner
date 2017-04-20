@@ -1,3 +1,2 @@
-1	city(valuecity) , zipcode(valuezipcode) => state(valuestate)
-1	state(valuestate) , zipcode(valuezipcode) => city(valuecity)
-1	city(valuecity) , state(valuestate) => zipcode(valuezipcode)
+1	city(valuecity) => state(valuestate)
+1	zipcode(valuezipcode) => city(valuecity)

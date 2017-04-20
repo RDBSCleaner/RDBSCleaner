@@ -1,8 +1,8 @@
-0.2900	city(Anchorage) // prior = 0.6001 ; delta = -0.3101
-0.1900	city(Dothan) // prior = 0.4001 ; delta = -0.2101
-0.6500	state(AK) // prior = 0.8001 ; delta = -0.1501
-0.0400	state(AR) // prior = 0.2001 ; delta = -0.1601
-0.1300	zipcode(36301) // prior = 0.4001 ; delta = -0.2701
-0.1000	zipcode(99508) // prior = 0.2001 ; delta = -0.1001
-0.0400	zipcode(99507) // prior = 0.2001 ; delta = -0.1601
-0.0300	zipcode(35233) // prior = 0.2001 ; delta = -0.1701
+0.3000	city(Anchorage) // prior = 0.6001 ; delta = -0.3001
+0.1500	city(Dothan) // prior = 0.4001 ; delta = -0.2501
+0.6400	state(AK) // prior = 0.8001 ; delta = -0.1601
+0.0300	state(AR) // prior = 0.2001 ; delta = -0.1701
+0.2600	zipcode(36301) // prior = 0.4001 ; delta = -0.1401
+0.1100	zipcode(99508) // prior = 0.2001 ; delta = -0.0901
+0.0800	zipcode(35233) // prior = 0.2001 ; delta = -0.1201
+0.0700	zipcode(99507) // prior = 0.2001 ; delta = -0.1301
