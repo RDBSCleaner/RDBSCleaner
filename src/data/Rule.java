@@ -26,7 +26,7 @@ public class Rule {
 
 	String predicate = null;
 	String value = null;
-	String[] header = null;
+	public String[] header = null;
 	ArrayList<Tuple> tupleList = new ArrayList<Tuple>();
 	
 	public Rule(){}
@@ -240,7 +240,9 @@ public class Rule {
             }
             System.out.println(entry.getValue().getIndex()+' '+entry.getKey());
 			double pre = entry.getValue().getCount()/tupleList.size();
-			DecimalFormat format = new DecimalFormat("#0.00");
+			pre += 0.0001;
+			if(pre > 1)pre = 1;
+			DecimalFormat format = new DecimalFormat("#0.0000");
 			content += format.format(pre) + " ";
 			content += header[entry.getValue().getHeaderIndex()]+"("+entry.getKey()+")" + "\n";
 		}
@@ -258,7 +260,7 @@ public class Rule {
 			Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			ResultSet rs;
 			String sql = "DROP TABLE temp;";
-			stmt.execute(sql);
+//			stmt.execute(sql);
 			sql = "CREATE TABLE temp(";
 			for(int i=0; i<header.length; i++){
 				sql += i==header.length-1?header[i]+" bigint);":header[i]+" bigint,";

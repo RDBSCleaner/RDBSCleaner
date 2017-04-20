@@ -1030,16 +1030,16 @@ public class Grounding {
 					
 					+ " WHERE " + c.sqlWhereBindings;
 
-					/*--------------    å‰ªææ“ä½œ   --------------*/
+					/*-------------- ¼ôÖ¦²Ù×÷ --------------*/
                     sql += " AND 0 < (SELECT count(*) FROM public.temp WHERE ";
                     int i = 1;
                     for (Literal t: c.getRegLiterals()) {
-                        sql += t.getPred().getName() + "=t" + i + "." + t.getPred().getName() + "Value1";
+                        sql += t.getPred().getName() + "=t" + i + ".value" + t.getPred().getName() + "1";
                         i++;
                         sql += i<=c.getRegLiterals().size()?" AND ":") ";
                     }
 					System.out.println("prune,line 1040");
-					/*--------------    å‰ªææ“ä½œend   --------------*/
+					/*-------------- ¼ôÖ¦²Ù×÷  --------------*/
 
 					if(!conds.isEmpty()) {
 						sql += " AND " + SQLMan.andSelCond(conds);

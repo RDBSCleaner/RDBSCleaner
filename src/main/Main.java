@@ -22,15 +22,14 @@ public class Main {
 		String rulesFile = currentDIR + "\\rules.txt";
 		String rule_outFile = currentDIR + "\\prog.mln";
 		String evidence_outFile = currentDIR + "\\evidence.db";
-		//String dataURL = currentDIR + "\\dataSet\\"+ "car evaluation\\car.data";
-//		String dataURL = currentDIR + "\\dataSet\\"+ "test-city.data";
-		String dataURL = currentDIR + "\\dataSet\\"+ "synthetic-car\\fulldb-part.txt";
+//		String dataURL = currentDIR + "\\dataSet\\"+ "car evaluation-new\\car.data";
+		String dataURL = currentDIR + "\\dataSet\\"+ "test-city.data";
+//		String dataURL = currentDIR + "\\dataSet\\"+ "synthetic-car\\fulldb-part.txt";
 		
 		String splitString = ",";
 		boolean ifHeader = true;
 		
 		List<Tuple> rules = rule.loadRules(dataURL, rulesFile, splitString);
-		Domain domain = new Domain();
 		
 		rule.initData(dataURL, splitString, ifHeader);
 		
@@ -87,6 +86,10 @@ public class Main {
             System.out.println(me.getKey() + " --> " + me.getValue()) ; 
         }
         
+        Domain domain = new Domain();
+		
+		domain.header = rule.header;
+        
         //区域划分 形成Domains
         domain.init(dataURL, splitString, ifHeader, rules);
         //对每个Domain执行group by key操作
@@ -101,22 +104,24 @@ public class Main {
         
         System.out.println("\n\tDuplicate keys: ");
         int c=0;
-        if(keysList.isEmpty())System.out.println("\tNo duplicate exists.");
-        for(List<Integer> keyList: keysList){
-        	System.out.print("\tGroup "+(++c)+": ");
-        	for(int key: keyList){
-        		System.out.print(key+" ");
-        	}
-      		System.out.println();
-      	}
-      	System.out.println();
+        if(null == keysList || keysList.isEmpty())System.out.println("\tNo duplicate exists.");
+        else{
+        	for(List<Integer> keyList: keysList){
+	        	System.out.print("\tGroup "+(++c)+": ");
+	        	for(int key: keyList){
+	        		System.out.print(key+" ");
+	        	}
+	      		System.out.println();
+	      	}
+          	System.out.println("\n>>> Delete duplicate tuples");
+          	
+          	//执行去重操作
+          	domain.deleteDuplicate(keysList, domain.dataSet);
+          	
+          	System.out.println(">>> completed!");
+        }
+	        
       	
-      	System.out.println(">>> Delete duplicate tuples");
-      	
-      	//执行去重操作
-      	domain.deleteDuplicate(keysList, domain.dataSet);
-      	
-      	System.out.println(">>> completed!");
 
       	//打印删除‘后’的数据集内容
       	domain.printDataSet(domain.dataSet);

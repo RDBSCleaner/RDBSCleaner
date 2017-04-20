@@ -1,2 +1,3 @@
-A(a)
-B(volvo)
+city(valuecity)
+zipcode(valuezipcode)
+state(valuestate)
