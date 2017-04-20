@@ -24,7 +24,7 @@ public class Domain {
 //	public List<HashMap<Integer, Tuple>> groups = null;
 	public List<List<HashMap<Integer, Tuple>>> Domain_to_Groups = null;	//List<groups> 存放group by key后，Domain中包含的group的编号
 	
-	public HashMap<Integer,ConflictTuple> conflicts = new HashMap<Integer,ConflictTuple>();	//记录冲突的元组，并按Domain分类 <DomainID, ConflictTuple>
+	public HashMap<Integer,Conflicts> conflicts = new HashMap<Integer,Conflicts>();	//记录冲突的元组，并按Domain分类 <DomainID, ConflictTuple>
 	
 	//属性列，如果数据集中没有给出，则构造一个属性列：Attr1,Attr2,Attr3,...,AttrN
 	public String[] header = null; 
@@ -424,7 +424,7 @@ public class Domain {
 		return result;
 	}
 	
-	public HashMap<Integer, Tuple> combineGroup(List<Integer> keyList, HashMap<Integer, Tuple> group1, HashMap<Integer, Tuple> group2, int DomianID1, int DomianID2){
+	public HashMap<Integer, Tuple> combineGroup(List<Integer> keyList, HashMap<Integer, Tuple> group1, HashMap<Integer, Tuple> group2){
 		HashMap<Integer, Tuple> newGroup = new HashMap<Integer, Tuple>(group1.size());
 		for(Integer key: keyList){
 			Tuple t1 = group1.get(key);
@@ -441,8 +441,8 @@ public class Domain {
 				keyList.remove(key);
 				
 				//根据DomainID将冲突的Tuple记录下来
-				addConflict(DomianID1, t1);
-				addConflict(DomianID2, t2);
+				addConflict(key, t1);
+				addConflict(key, t2);
 				
 				if(keyList.isEmpty()){
 					return null;
@@ -452,12 +452,12 @@ public class Domain {
 		return newGroup;
 	}
 	
-	public void addConflict(int DomianID, Tuple t){
-		ConflictTuple oldct = conflicts.get(DomianID);
+	public void addConflict(int tupleID, Tuple t){
+		Conflicts oldct = conflicts.get(tupleID);
 		if(null == oldct){ 	//该Domain中尚未添加冲突元组
-			ConflictTuple newct = new ConflictTuple();
+			Conflicts newct = new Conflicts();
 			newct.tuples.add(t);
-			conflicts.put(DomianID, newct);
+			conflicts.put(tupleID, newct);
 		}else{
 			oldct.tuples.add(t);
 		}
@@ -523,7 +523,7 @@ public class Domain {
 		}
 		
 		for(int i=1;i<Domain_to_Groups.size();i++){
-			curDomainID = i;
+//			curDomainID = i;
 			
 			List<HashMap<Integer, Tuple>> cur_groups = Domain_to_Groups.get(i);
 			int pre_groups_index = 0;
@@ -544,8 +544,9 @@ public class Domain {
 				//求两个group的交集
 				List<Integer> keyList = interset(calculateKeys(pre_group) , calculateKeys(cur_group));
 				if(keyList.size()!=0){ //如果存在交集,更新keysList,进行下一个group的匹配
-					preDomainID = i;
-					pre_group = combineGroup(keyList, pre_group, cur_group, preDomainID, curDomainID);
+//					preDomainID = i;
+//					pre_group = combineGroup(keyList, pre_group, cur_group, preDomainID, curDomainID);
+					pre_group = combineGroup(keyList, pre_group, cur_group);
 					if(null==pre_group){
 //						flags[cur_groups_index]=true;
 						keysList.remove(pre_groups_index);
@@ -734,21 +735,21 @@ public class Domain {
 		System.out.println();
 	}
 	
-	public void printConflicts(HashMap<Integer,ConflictTuple> conflicts){
+	public void printConflicts(HashMap<Integer,Conflicts> conflicts){
 		System.out.println("Conflict tuples:");
-		Iterator<Entry<Integer,ConflictTuple>> iter = conflicts.entrySet().iterator();
+		Iterator<Entry<Integer,Conflicts>> iter = conflicts.entrySet().iterator();
 		if(conflicts.size()==0){
 			System.out.println("No Conflict tuples.");
 			return;
 		}
 		while(iter.hasNext()){
-			Entry<Integer,ConflictTuple> entry = (Entry<Integer,ConflictTuple>) iter.next();
+			Entry<Integer,Conflicts> entry = (Entry<Integer,Conflicts>) iter.next();
 			Object key = entry.getKey();
-			ConflictTuple value = entry.getValue();
+			Conflicts value = entry.getValue();
 			List<Tuple> tuples = value.tuples;
-			System.out.println("key = "+key);
+			System.out.print("Tuple ID = "+key+"\n"+"Content = ");
 			for(Tuple t: tuples){
-				System.out.println("Content = "+Arrays.toString(t.getContext()));
+				System.out.print(Arrays.toString(t.getContext())+" ");
 			}
 			
 		}

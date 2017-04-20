@@ -120,9 +120,7 @@ public class Main {
           	
           	System.out.println(">>> completed!");
         }
-	        
-      	
-
+	    
       	//打印删除‘后’的数据集内容
       	domain.printDataSet(domain.dataSet);
       	
