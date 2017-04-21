@@ -5,8 +5,7 @@ import java.util.List;
 
 public class Conflicts {
 	
-	List<Tuple> tuples = new ArrayList<Tuple>();
+	List<ConflictTuple> tuples = new ArrayList<ConflictTuple>();
 	
 	public Conflicts(){}
-
 }

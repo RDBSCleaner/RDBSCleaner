@@ -100,7 +100,7 @@ public class Main {
         
         System.out.println(">>> Find Duplicate Values...");
         
-        List<List<Integer>> keysList = domain.combineDomain(domain.Domain_to_Groups); 	//返回所有重复数组的tupleID
+        List<List<Integer>> keysList = domain.combineDomain(domain.Domain_to_Groups); 	//返回所有重复数组的tupleID,并记录重复元组
         
         System.out.println("\n\tDuplicate keys: ");
         int c=0;
@@ -126,7 +126,6 @@ public class Main {
       	
       	domain.printConflicts(domain.conflicts);
       	
-      		
 	}
 	
 }

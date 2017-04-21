@@ -123,7 +123,7 @@ public class DataSet {
 		for(int i=0;i<tupleList.size();i++){
         	Tuple tuple = tupleList.get(i);
         	String[] tupleContext = tuple.getContext();
-        	System.out.print("tuple "+tuple.getIndex()+": ");
+        	System.out.print("tuple "+tuple.getTupleID()+": ");
         	for(int j=1;j<=tupleContext.length;j++){
         		System.out.print(tupleContext[j-1]+",");
         	}

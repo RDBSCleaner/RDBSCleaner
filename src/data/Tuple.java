@@ -4,18 +4,18 @@ public class Tuple {
 	
 	public String[] reason = null;	//记录Tuple的reason value
 	public String[] result = null;	//记录Tuple的result value
-	public int index = -1; //index from 0 to dataset.size;
+	public int tupleID = -1; //index from 0 to dataset.size;
 	
-	private int[] resultAttributeIndex = null;
-	private int[] reasonAttributeIndex = null;
+	public int[] resultAttributeIndex = null;
+	public int[] reasonAttributeIndex = null;
 	
 	
-	private String[] AttributeNames = null;	//记录Tuple的所有属性名
+	public String[] AttributeNames = null;	//记录Tuple的所有属性名
 	
-	private String[] TupleContext = null;
-	private int[] AttributeIndex = null;
+	public String[] TupleContext = null;
+	public int[] AttributeIndex = null;
 	
-	private double[] probablity = null;
+	public double[] probablity = null;
 	
 	public Tuple(){}
 	
@@ -40,7 +40,7 @@ public class Tuple {
 	public void init(String tupleLine,String splitString,int index){//Init the tuple
 		
 		this.TupleContext = tupleLine.split(splitString);
-		this.index = index;
+		this.tupleID = index;
 		//System.out.println("Tuple.length = "+Tuple.length);
 	}
 	
@@ -68,8 +68,8 @@ public class Tuple {
 			return null;
 	}
 	
-	public int getIndex(){
-		return index;
+	public int getTupleID(){
+		return tupleID;
 	}
 	
 	public int[] getReasonAttributeIndex() {
