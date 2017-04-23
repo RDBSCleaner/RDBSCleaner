@@ -195,13 +195,14 @@ public class Domain {
 		for(int i=0;i<bigIDs.length;i++){
 			map.put(bigIDs[i], 1);
 		}
-		for(int i=0;i<IDs.length;i++){
+		int i = 0;
+		for(;IDs[i]!=-1;i++){
 			Integer value = map.get(IDs[i]);
 			if(null!=value){
 				count++;
 			}
 		}
-		if(count==IDs.length)result = true;
+		if(count==i)result = true;
 		return result;
 	}
 	
@@ -288,8 +289,8 @@ public class Domain {
 	/**
 	 * 根据MLN的概率修正错误数据
 	 * */
-	public void correctByMLN(List<List<HashMap<Integer, Tuple>>> Domain_to_Groups, HashMap<String, Double> attributes, String[] header){
-		
+	public void correctByMLN(List<List<HashMap<Integer, Tuple>>> Domain_to_Groups, HashMap<String, Double> attributesPROB, String[] header, List<HashMap<Integer, Tuple>> domains){
+		int DGindex = 0;
 		for(List<HashMap<Integer, Tuple>> groups: Domain_to_Groups){
 			for(int i=0;i<groups.size();i++){
 				HashMap<Integer,Tuple> group = groups.get(i);
@@ -307,7 +308,7 @@ public class Domain {
 		            //计算该tuple的result probability
 		            for(int j=0;j<resultValues.length;j++){
 		            	String result = header[resultIDs[j]]+"("+resultValues[j]+")";
-		            	Double tmpProb = attributes.get(result);
+		            	Double tmpProb = attributesPROB.get(result);
 		            	if(tmpProb == null)continue;//表明该result的概率为1
 		            	prob *= tmpProb;
 		            }
@@ -324,8 +325,10 @@ public class Domain {
 			        while(iter.hasNext()){ 
 			            Entry<Integer,Tuple> current = iter.next();
 			            group.put(current.getKey(), cleanTuple);
+			            domains.get(DGindex).put(current.getKey(), cleanTuple);
 			        }
 			}
+			DGindex++;
 		}
 		
 		//输出修正后的Group结果
@@ -403,6 +406,38 @@ public class Domain {
 			t.setAttributeIndex(attributeIndex);
 		}
 		return t;
+	}
+	
+	/**
+	 * 找到两个数组的交集
+	 * */
+	public static int[] findSameID(int[] IDs1, int[] IDs2){
+		int[] sameID = null;
+		//初始化
+		if(IDs1.length > IDs2.length)
+			sameID = new int[IDs2.length];
+		else
+			sameID = new int[IDs1.length];
+		for(int i=0;i<sameID.length;i++)
+			sameID[i] = -1;
+		
+		//findSameID
+		int[] newIDs1 = Arrays.copyOfRange(IDs1, 0, IDs1.length);
+		int[] newIDs2 = Arrays.copyOfRange(IDs2, 0, IDs2.length);
+		Arrays.sort(newIDs1);
+		Arrays.sort(newIDs2);
+		int i = 0, j = 0, index = 0;
+		while(i<newIDs1.length && j<newIDs2.length){
+			if(newIDs1[i] == newIDs2[j]){
+				sameID[index++] = newIDs1[i];
+				++i;
+				++j;
+			}else if(newIDs1[i] < newIDs2[j])
+				++i;
+			else
+				++j;
+		}
+		return sameID;
 	}
 	
 	/**
@@ -545,13 +580,34 @@ public class Domain {
 		return keys;
 	}
 
+	public boolean ifSameValue(int[] conflictIDs, Tuple t, ConflictTuple ct){
+		boolean result = false;
+		int count = 0;
+		int i = 0;
+		int ti = 0, cti = 0;
+		for(; conflictIDs[i]!=-1; i++){
+			while(ti<t.AttributeIndex.length){
+				if(t.AttributeIndex[ti]==conflictIDs[i]){
+					break;
+				}else ti++;
+			}
+			while(cti<ct.AttributeIndex.length){
+				if(ct.AttributeIndex[cti]==conflictIDs[i]){
+					break;
+				}else cti++;
+			}
+			if(t.TupleContext[ti].equals(ct.TupleContext[cti]))count++;
+		}
+		if(count == i)result = true;
+		return result;
+	}
 	
 	/**
 	 * 为冲突元组找到候选的替换方案
 	 * */
-	public void findCandidate(HashMap<Integer,Conflicts> conflicts , List<List<HashMap<Integer, Tuple>>> Domain_to_Groups){
+	public void findCandidate(HashMap<Integer,Conflicts> conflicts , List<List<HashMap<Integer, Tuple>>> Domain_to_Groups, List<HashMap<Integer, Tuple>> domains, HashMap<String, Double> attributesPROB){
 		
-		List<Tuple> candidateTuple = new ArrayList<Tuple>(header.length);
+		Tuple candidateTuple = new Tuple();
 		
 		//根据冲突元组，按不同的组合形成候选的修正方案
 		Iterator<Entry<Integer,Conflicts>> conflict_iter = conflicts.entrySet().iterator();
@@ -566,24 +622,78 @@ public class Domain {
 				int conflictDomainID = ct.domainID;
 				int length = Domain_to_Groups.size();
 				boolean[] flag = new boolean[length];
+				Tuple combinedTuple = ct;
 				//去匹配下一个区域的元组值
-				for(int i=0;i<Domain_to_Groups.size();i++){
-					if(flag[i])continue;
-					List<HashMap<Integer, Tuple>> cur_groups = Domain_to_Groups.get(i);
-					for(HashMap<Integer, Tuple> group: cur_groups){
-						Iterator<Entry<Integer, Tuple>> iter = group.entrySet().iterator();
+				for(int i=0; i<length; i++){
+					if(flag[i] || i == conflictDomainID )continue;
+					HashMap<Integer, Tuple> domain = domains.get(i);
+					Tuple firstTuple = domain.entrySet().iterator().next().getValue();
+					int[] sameID = findSameID(firstTuple.AttributeIndex, combinedTuple.AttributeIndex);
+					if(sameID[0]!=-1){
+						List<HashMap<Integer, Tuple>> cur_groups = Domain_to_Groups.get(i);
+						for(HashMap<Integer, Tuple> group: cur_groups){
+							Iterator<Entry<Integer, Tuple>> iter = group.entrySet().iterator();
+							while(iter.hasNext()){
+								Entry<Integer, Tuple> en = iter.next();
+								Tuple t = en.getValue();
+								if(ifContains(sameID, t.AttributeIndex) && ifSameValue(sameID, t, ct)){
+									flag[i] = true;
+									combinedTuple = combineTuple(combinedTuple, t, sameID);
+									break;
+								}
+							}
+							if(flag[i])break;
+						}
+					}else{
+						combinedTuple = combineTuple(combinedTuple, domain.get(tupleID), sameID);
+						flag[i] = true;
+					}
+					
+				}
+				//若group中匹配不到，则去Domain中匹配
+				for(int fi = 0; fi<flag.length; fi++){
+					if(flag[fi] || fi == conflictDomainID)continue;
+					HashMap<Integer, Tuple> domain = domains.get(fi);
+					Tuple firstTuple = domain.entrySet().iterator().next().getValue();
+					int[] sameID = findSameID(firstTuple.AttributeIndex, combinedTuple.AttributeIndex);
+					if(sameID[0]!=-1){
+						Iterator<Entry<Integer, Tuple>> iter = domain.entrySet().iterator();
 						while(iter.hasNext()){
 							Entry<Integer, Tuple> en = iter.next();
 							Tuple t = en.getValue();
-							if(ifContains(conflictIDs, t.AttributeIndex) && i!=conflictDomainID){
-								flag[i] = true;
+							if(ifContains(sameID, t.AttributeIndex) && ifSameValue(sameID, t, ct)){
+								flag[fi] = true;
+								combinedTuple = combineTuple(combinedTuple, t, sameID);
+								break;
 							}
 						}
+						if(flag[fi])break;
+					}else{
+						combinedTuple = combineTuple(combinedTuple, domain.get(tupleID), sameID);
+						flag[fi] = true;
 					}
+					
 				}
-				
+				String[] content = combinedTuple.TupleContext;
+	            int[] contentID = combinedTuple.AttributeIndex;
+	            double prob = 1.0;
+	            //计算该tuple的result probability
+	            for(int j=0;j<content.length;j++){
+	            	String result = header[contentID[j]]+"("+content[j]+")";
+	            	Double tmpProb = attributesPROB.get(result);
+	            	if(tmpProb == null)continue;//表明该result的概率为1
+	            	prob *= tmpProb;
+	            }
+	            if(prob>candidateTuple.probablity){
+	            	candidateTuple = combinedTuple;
+	            	candidateTuple.probablity = prob;
+	            }
 			}
+			//修改dataset中这一条的数据
+			dataSet.put(tupleID, candidateTuple.TupleContext);
 		}
+		System.out.println("\ncandidate Tuple = "+Arrays.toString(candidateTuple.TupleContext));
+		
 	}
 	
 	public List<List<Integer>> combineDomain(List<List<HashMap<Integer, Tuple>>> Domain_to_Groups){
@@ -625,7 +735,6 @@ public class Domain {
 				//求两个group的交集
 				List<Integer> keyList = interset(calculateKeys(pre_group) , calculateKeys(cur_group));
 				if(keyList.size()!=0){ //如果存在交集,更新keysList,进行下一个group的匹配
-					preDomainID = i;
 					pre_group = combineGroup(keyList, pre_group, cur_group, preDomainID, curDomainID);
 //					pre_group = combineGroup(keyList, pre_group, cur_group);
 					if(null==pre_group){
@@ -646,6 +755,7 @@ public class Domain {
 					cur_groups_index++;
 				}
 			}
+			preDomainID = i;
 //			for(int k=0;k<flags.length;k++){
 //				if(!flags[k]) keysList.remove(k);
 //			}

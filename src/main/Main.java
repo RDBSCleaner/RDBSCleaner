@@ -77,10 +77,10 @@ public class Main {
 		
 		String[] learnwt = list.toArray(new String[list.size()]);
 		
-		HashMap<String, Double> attributes = MLNmain.main(learnwt);	//入口：参数学习 weight learning——using 'Diagonal Newton discriminative learning'
+		HashMap<String, Double> attributesPROB = MLNmain.main(learnwt);	//入口：参数学习 weight learning——using 'Diagonal Newton discriminative learning'
 
 		//打印MLN marginal计算得到的概率
-		Iterator<Entry<String, Double>> iter = attributes.entrySet().iterator(); 
+		Iterator<Entry<String, Double>> iter = attributesPROB.entrySet().iterator(); 
         while(iter.hasNext()){ 
             Entry<String, Double> me = iter.next() ; 
             System.out.println(me.getKey() + " --> " + me.getValue()) ; 
@@ -96,7 +96,10 @@ public class Main {
         domain.groupByKey(domain.domains, rules);
       		
         //根据MLN的概率修正错误数据
-        domain.correctByMLN(domain.Domain_to_Groups, attributes, domain.header);
+        domain.correctByMLN(domain.Domain_to_Groups, attributesPROB, domain.header, domain.domains);
+        
+        //打印修正后的Domain
+        domain.printDomainContent(domain.domains);
         
         System.out.println(">>> Find Duplicate Values...");
         
@@ -125,6 +128,10 @@ public class Main {
       	domain.printDataSet(domain.dataSet);
       	
       	domain.printConflicts(domain.conflicts);
+      	
+      	domain.findCandidate(domain.conflicts, domain.Domain_to_Groups, domain.domains, attributesPROB);
+      	
+      	domain.printDataSet(domain.dataSet);
       	
 	}
 	

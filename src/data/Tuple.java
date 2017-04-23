@@ -15,9 +15,21 @@ public class Tuple {
 	public String[] TupleContext = null;
 	public int[] AttributeIndex = null;
 	
-	public double[] probablity = null;
+	public double probablity = -1;
 	
 	public Tuple(){}
+	
+	public Tuple(ConflictTuple ct){
+		this.reason = ct.reason;
+		this.result = ct.result;
+		this.tupleID = ct.tupleID;
+		this.resultAttributeIndex = ct.resultAttributeIndex;
+		this.reasonAttributeIndex = ct.reasonAttributeIndex;
+		this.AttributeNames = ct.AttributeNames;
+		this.TupleContext = ct.TupleContext;
+		this.AttributeIndex = ct.AttributeIndex;
+		this.probablity = ct.probablity;
+	}
 	
 	public void setContext(String[] TupleContext){
 		this.TupleContext = TupleContext;
@@ -104,11 +116,11 @@ public class Tuple {
 		AttributeIndex = attributeIndex;
 	}
 
-	public double[] getProbablity() {
-		return probablity;
-	}
-
-	public void setProbablity(double[] probablity) {
-		this.probablity = probablity;
-	}
+//	public double[] getProbablity() {
+//		return probablity;
+//	}
+//
+//	public void setProbablity(double[] probablity) {
+//		this.probablity = probablity;
+//	}
 }
