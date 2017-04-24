@@ -1,8 +1,17 @@
-city(valuecity)
-zipcode(valuezipcode)
-state(valuestate)
+//zipcode(valuezipcode)
+//city(valuecity)
+//state(valuestate)
+
+//1	zipcode(valuezipcode) => city(valuecity)
 
 
-1	city(valuecity) , zipcode(valuezipcode) => state(valuestate)
-1	state(valuestate) , zipcode(valuezipcode) => city(valuecity)
-1	city(valuecity) , state(valuestate) => zipcode(valuezipcode)
+ProviderID(valueProviderID)
+City(valueCity)
+State(valueState)
+ZIPCode(valueZIPCode)
+PhoneNumber(valuePhoneNumber)
+Score(valueScore)
+
+1	ZIPCode(valueZIPCode) => State(valueState)
+1	PhoneNumber(valuePhoneNumber) => ZIPCode(valueZIPCode)
+1	ProviderID(valueProviderID) => City(valueCity) v PhoneNumber(valuePhoneNumber)

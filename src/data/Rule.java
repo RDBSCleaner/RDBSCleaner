@@ -238,13 +238,13 @@ public class Rule {
                 entry.getValue().setIndex(index);
                 index++;
             }
-            System.out.println(entry.getValue().getIndex()+' '+entry.getKey());
+//            System.out.println(entry.getValue().getIndex()+' '+entry.getKey());
 			double pre = entry.getValue().getCount()/tupleList.size();
 			pre += 0.0001;
 			if(pre > 1)pre = 1;
 			DecimalFormat format = new DecimalFormat("#0.0000");
 			content += format.format(pre) + " ";
-			content += header[entry.getValue().getHeaderIndex()]+"("+entry.getKey()+")" + "\n";
+			content += header[entry.getValue().getHeaderIndex()]+"(\""+entry.getKey()+"\")" + "\n";
 		}
         writeToFile(content, outFile);
 		System.out.println(">> Writing Completed!");

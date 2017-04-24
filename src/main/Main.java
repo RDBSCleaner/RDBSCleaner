@@ -23,8 +23,8 @@ public class Main {
 		String rule_outFile = currentDIR + "\\prog.mln";
 		String evidence_outFile = currentDIR + "\\evidence.db";
 //		String dataURL = currentDIR + "\\dataSet\\"+ "car evaluation-new\\car.data";
-		String dataURL = currentDIR + "\\dataSet\\"+ "test-city.data";
-//		String dataURL = currentDIR + "\\dataSet\\"+ "synthetic-car\\fulldb-part.txt";
+//		String dataURL = currentDIR + "\\dataSet\\"+ "test-city.data";
+		String dataURL = currentDIR + "\\dataSet\\"+ "HAI.csv";
 		
 		String splitString = ",";
 		boolean ifHeader = true;
@@ -45,7 +45,7 @@ public class Main {
 		//list.add(learnwt_args);
 		
 		String nopart_args = "-nopart";
-		//list.add(nopart_args);
+		list.add(nopart_args);
 		
 		String mln_args = "-i";
 		list.add(mln_args);
