@@ -179,7 +179,7 @@ public class Domain {
 	        }
 	        br.close();
 	        reader.close();
-	        printDomainContent(domains);
+//	        printDomainContent(domains);
 	        
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -279,10 +279,10 @@ public class Domain {
 			}
 		}
 		int d_index=0;
-		for(List<HashMap<Integer, Tuple>> d: Domain_to_Groups){
-			System.out.println("\n*******Domain "+(++d_index)+"*******");
-			printGroup(d);
-		}
+//		for(List<HashMap<Integer, Tuple>> d: Domain_to_Groups){
+//			System.out.println("\n*******Domain "+(++d_index)+"*******");
+//			printGroup(d);
+//		}
 		//printGroup(groups);
 	}
 	
@@ -333,11 +333,11 @@ public class Domain {
 		
 		//输出修正后的Group结果
 		System.out.println("\n=======After Correct Values By MLN Probability=======");
-		int d_index = 0;
-		for(List<HashMap<Integer, Tuple>> groups: Domain_to_Groups){
-			System.out.println("\n*******Domain "+(++d_index)+"*******");
-			printGroup(groups);
-		}
+//		int d_index = 0;
+//		for(List<HashMap<Integer, Tuple>> groups: Domain_to_Groups){
+//			System.out.println("\n*******Domain "+(++d_index)+"*******");
+//			printGroup(groups);
+//		}
 	}
 	
 	
@@ -495,7 +495,8 @@ public class Domain {
 	
 	public HashMap<Integer, Tuple> combineGroup(List<Integer> keyList, HashMap<Integer, Tuple> group1, HashMap<Integer, Tuple> group2, int Domain1, int Domain2){
 		HashMap<Integer, Tuple> newGroup = new HashMap<Integer, Tuple>(group1.size());
-		for(Integer key: keyList){
+		for(int ki=0;ki<keyList.size();){
+			int key = keyList.get(ki);
 			Tuple t1 = group1.get(key);
 			Tuple t2 = group2.get(key);
 			ConflictTuple ct1 = new ConflictTuple(t1);
@@ -507,6 +508,7 @@ public class Domain {
 			}
 			if(!checkConflict(t1, t2, sameID)){ //不冲突
 				newGroup.put(key, combineTuple(t1, t2, sameID));
+				ki++;
 			}else{
 				group1.remove(key);
 				group2.remove(key);
@@ -735,8 +737,9 @@ public class Domain {
 				//求两个group的交集
 				List<Integer> keyList = interset(calculateKeys(pre_group) , calculateKeys(cur_group));
 				if(keyList.size()!=0){ //如果存在交集,更新keysList,进行下一个group的匹配
+					
 					pre_group = combineGroup(keyList, pre_group, cur_group, preDomainID, curDomainID);
-//					pre_group = combineGroup(keyList, pre_group, cur_group);
+					
 					if(null==pre_group){
 //						flags[cur_groups_index]=true;
 						keysList.remove(pre_groups_index);
@@ -765,7 +768,7 @@ public class Domain {
 		int d_index = 0;
 		for(List<HashMap<Integer, Tuple>> groups: Domain_to_Groups){
 			System.out.println("\n*******Domain "+(++d_index)+"*******");
-			printGroup(groups);
+//			printGroup(groups);
 		}
 		 //===========test==========
 		

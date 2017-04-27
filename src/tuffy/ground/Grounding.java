@@ -3,6 +3,7 @@ package tuffy.ground;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -785,6 +786,7 @@ public class Grounding {
 	private void computeActiveClauses(String cbuffer) {
 		Timer.start("totalgrounding");
 		UIMan.verboseInline(1, ">>> Grounding clauses...");
+		double startTime = System.currentTimeMillis();    //获取开始时间
 		UIMan.verbose(2, "");
 		double longestSec = 0;
 		Clause longestClause = null;
@@ -1031,14 +1033,14 @@ public class Grounding {
 					+ " WHERE " + c.sqlWhereBindings;
 
 					/*-------------- 剪枝操作 --------------*/
-                    sql += " AND 0 < (SELECT count(*) FROM public.temp WHERE ";
-                    int i = 1;
-                    for (Literal t: c.getRegLiterals()) {
-                        sql += t.getPred().getName() + "=t" + i + ".value" + t.getPred().getName() + "1";
-                        i++;
-                        sql += i<=c.getRegLiterals().size()?" AND ":") ";
-                    }
-					System.out.println("prune,line 1040");
+//                    sql += " AND 0 < (SELECT count(*) FROM public.temp WHERE ";
+//                    int i = 1;
+//                    for (Literal t: c.getRegLiterals()) {
+//                        sql += t.getPred().getName() + "=t" + i + ".value" + t.getPred().getName() + "1";
+//                        i++;
+//                        sql += i<=c.getRegLiterals().size()?" AND ":") ";
+//                    }
+//					System.out.println("prune,line 1040");
 					/*-------------- 剪枝操作  --------------*/
 
 					if(!conds.isEmpty()) {
@@ -1169,6 +1171,13 @@ public class Grounding {
 		}
 		if(Config.verbose_level == 1) UIMan.println(".");
 		UIMan.verbose(1, "### total grounding = " + Timer.elapsed("totalgrounding"));
+		
+		double endTime = System.currentTimeMillis();    //获取结束时间
+      	
+		double totalTime= (endTime-startTime)/1000;
+      	DecimalFormat df = new DecimalFormat("#.00");
+      	
+      	System.out.println("grounding time： "+df.format(totalTime)+"s"); 
 	}
 
 	

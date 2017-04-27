@@ -14,4 +14,4 @@ Score(valueScore)
 
 1	ZIPCode(valueZIPCode) => State(valueState)
 1	PhoneNumber(valuePhoneNumber) => ZIPCode(valueZIPCode)
-1	ProviderID(valueProviderID) => City(valueCity) v PhoneNumber(valuePhoneNumber)
+1	City(valueCity) v PhoneNumber(valuePhoneNumber) v !ProviderID(valueProviderID)

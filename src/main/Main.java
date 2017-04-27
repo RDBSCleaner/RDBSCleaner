@@ -2,6 +2,7 @@ package main;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,10 +18,11 @@ public class Main {
 	
 	public static void main(String[] args) throws SQLException, IOException {
 		
+		double startTime = System.currentTimeMillis();    //获取开始时间
+		
 		Rule rule = new Rule();
 		String currentDIR = System.getProperty("user.dir");//获得当前工程路径
 		String rulesFile = currentDIR + "\\rules.txt";
-		String rule_outFile = currentDIR + "\\prog.mln";
 		String evidence_outFile = currentDIR + "\\evidence.db";
 //		String dataURL = currentDIR + "\\dataSet\\"+ "car evaluation-new\\car.data";
 //		String dataURL = currentDIR + "\\dataSet\\"+ "test-city.data";
@@ -45,7 +47,7 @@ public class Main {
 		//list.add(learnwt_args);
 		
 		String nopart_args = "-nopart";
-		list.add(nopart_args);
+//		list.add(nopart_args);
 		
 		String mln_args = "-i";
 		list.add(mln_args);
@@ -73,6 +75,12 @@ public class Main {
 		
 		String noDropDB = "-keepData";
 		list.add(noDropDB);
+		
+		String maxIter_args = "-dMaxIter";
+		list.add(maxIter_args);
+		
+		String maxIter = "100";
+		list.add(maxIter);
 
 		
 		String[] learnwt = list.toArray(new String[list.size()]);
@@ -99,7 +107,7 @@ public class Main {
         domain.correctByMLN(domain.Domain_to_Groups, attributesPROB, domain.header, domain.domains);
         
         //打印修正后的Domain
-        domain.printDomainContent(domain.domains);
+//        domain.printDomainContent(domain.domains);
         
         System.out.println(">>> Find Duplicate Values...");
         
@@ -125,14 +133,20 @@ public class Main {
         }
 	    
       	//打印删除‘后’的数据集内容
-      	domain.printDataSet(domain.dataSet);
+//      	domain.printDataSet(domain.dataSet);
       	
-      	domain.printConflicts(domain.conflicts);
+//      	domain.printConflicts(domain.conflicts);
       	
       	domain.findCandidate(domain.conflicts, domain.Domain_to_Groups, domain.domains, attributesPROB);
       	
-      	domain.printDataSet(domain.dataSet);
+//      	domain.printDataSet(domain.dataSet);
       	
+      	double endTime = System.currentTimeMillis();    //获取结束时间
+      	
+      	double totalTime= (endTime-startTime)/1000;
+      	DecimalFormat df = new DecimalFormat("#.00");
+      	
+      	System.out.println("程序运行时间： "+df.format(totalTime)+"s"); 
 	}
 	
 }
