@@ -250,39 +250,47 @@ public class Rule {
 		System.out.println(">> Writing Completed!");
 
 		// 杩炴帴瀛楃涓诧紝鏍煎紡锛� "jdbc:鏁版嵁搴撻┍鍔ㄥ悕绉�://鏁版嵁搴撴湇鍔″櫒ip/鏁版嵁搴撳悕绉�"
-//		String url = Config.db_url;
-//		String username = Config.db_username;
-//		String password = Config.db_password;
-//
-//		try {
-//			Class.forName("org.postgresql.Driver").newInstance();
-//			Connection conn = DriverManager.getConnection(url, username, password);
-//			Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-////			ResultSet rs;
-//			String sql = "DROP TABLE IF EXISTS temp CASCADE;";
-//			stmt.execute(sql);
-//			
-//			sql = "CREATE TABLE temp(";
-//			for(int i=0; i<header.length; i++){
-//				sql += i==header.length-1?header[i]+" bigint);":header[i]+" bigint,";
-//			}
-//			System.out.println(sql);
-//			stmt.execute(sql);
-//			for (Tuple t : tupleList){
-//				sql = "INSERT INTO temp VALUES(";
-//				for (int i = 0;i < t.getContext().length; i++){
-//					String item = t.getContext()[i];
-//					sql += i==t.getContext().length-1?map.get(item).getIndex():map.get(item).getIndex() + ",";
-//				}
-//				sql += ");";
-//				stmt.execute(sql);
-//			}
-//			stmt.close();
-//			conn.close();
-//		}
-//		catch (Exception e){
-//			e.printStackTrace();
-//		}
+		String url = Config.db_url;
+		String username = Config.db_username;
+		String password = Config.db_password;
+
+		try {
+			Class.forName("org.postgresql.Driver").newInstance();
+			Connection conn = DriverManager.getConnection(url, username, password);
+			Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+//			ResultSet rs;
+			String sql = "DROP TABLE IF EXISTS temp CASCADE;";
+			stmt.execute(sql);
+			
+			sql = "CREATE TABLE temp(";
+			for(int i=0; i<header.length; i++){
+				sql += i==header.length-1?header[i]+" bigint);":header[i]+" bigint,";
+			}
+			System.out.println(sql);
+			stmt.execute(sql);
+			//新建表
+			sql = "CREATE INDEX temp_idx ON temp (";
+			for(int i=0; i<header.length; i++){
+				sql += i==header.length-1?header[i]+");":header[i]+", ";
+			}
+			System.out.println(sql);
+			stmt.execute(sql);
+			//新建索引
+			for (Tuple t : tupleList){
+				sql = "INSERT INTO temp VALUES(";
+				for (int i = 0;i < t.getContext().length; i++){
+					String item = t.getContext()[i];
+					sql += i==t.getContext().length-1?map.get(item).getIndex():map.get(item).getIndex() + ",";
+				}
+				sql += ");";
+				stmt.execute(sql);
+			}
+			stmt.close();
+			conn.close();
+		}
+		catch (Exception e){
+			e.printStackTrace();
+		}
 	}
 	
 	/**
