@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+
 import java.util.*;
 import tuffy.util.Config;
 import org.postgresql.Driver;
@@ -32,8 +34,38 @@ public class Rule {
 	public Rule(){}
 	
 	
+	public ArrayList<Integer> findIgnoredTuples(List<Tuple> rules){
+		ArrayList<Integer> ignoredIDs = new ArrayList<Integer>();
+		
+		HashMap<String,Integer> map = new HashMap<String,Integer>(header.length);
+		
+		for(Tuple rule: rules){
+			int i = 0;
+			while(i<rule.reason.length){
+				map.put(rule.reason[i++], 1);
+			}
+			int j=0;
+			while(j<rule.result.length){
+				map.put(rule.result[j++], 1);
+			}
+		}
+		for(int i=0;i<header.length;i++){
+			String predicate = header[i];
+			Integer result = map.get(predicate);
+			if(null == result){//find ignored tuple predicate
+				ignoredIDs.add(i);
+			}
+		}
+		System.out.print("Ignored Tuple ID:");
+		for(int i: ignoredIDs){
+			System.out.print(i+" ");
+		}
+		
+		return ignoredIDs;
+	}
+	
 	/**
-	 * 杩斿洖鍗曚釜灞炴�у悕鐨勬墍鍦ㄥ垪鐨勭紪鍙�
+	 * 鏉╂柨娲栭崡鏇氶嚋鐏炵偞锟窖冩倳閻ㄥ嫭澧嶉崷銊ュ灙閻ㄥ嫮绱崣锟�
 	 * @return Attribute Index
 	 * */
 	public static int findAttributeIndex(String name, String[] header){
@@ -46,14 +78,14 @@ public class Rule {
 	}
 	
 	/**
-	 * 杩斿洖澶氫釜灞炴�у悕鐨勬墍鍦ㄥ垪鐨勭紪鍙�
+	 * 鏉╂柨娲栨径姘嚋鐏炵偞锟窖冩倳閻ㄥ嫭澧嶉崷銊ュ灙閻ㄥ嫮绱崣锟�
 	 * @return Attribute Indexes
 	 * */
 	public static int[] findAttributeIndex(String[] name, String[] header){
 		boolean[] flag = new boolean[header.length];
 		int[] attributeIDs = new int[name.length];
 		
-		for(int i=0;i<flag.length;i++){	//鍒濆鍖杅lag
+		for(int i=0;i<flag.length;i++){	//閸掓繂顫愰崠鏉卨ag
 			flag[i] = false;
 		}
 		
@@ -70,8 +102,6 @@ public class Rule {
 	}
 	
 	/**
-	 * 宸茬煡tuple IDs鍜宺eason IDs
-	 * 杩斿洖缁撴灉result鍊兼墍鍦ㄥ垪鐨勭紪鍙�
 	 * @param tuple IDs
 	 * @param reason IDs
 	 * */
@@ -79,7 +109,7 @@ public class Rule {
 		int[] resultIDs = new int[tupleIDs.length-reasonIDs.length];
 		int index=0;
 		ArrayList<Integer> list = new ArrayList<Integer>();
-        //閫夊嚭灞炰簬tupleIDs浣嗕笉灞炰簬reasonIDs鐨勫厓绱�, 鍗硆esultIDs
+        //闁鍤仦鐐扮艾tupleIDs娴ｅ棔绗夌仦鐐扮艾reasonIDs閻ㄥ嫬鍘撶槐锟�, 閸楃esultIDs
         for(int i = 0; i < tupleIDs.length; ++i) {
             boolean bContained = false;
             for(int j = 0; j < reasonIDs.length; ++j) {
@@ -122,13 +152,15 @@ public class Rule {
 	}
 	
 	/**
-	 * 浠巖ules涓彁鍙杙redicates
+	 * getting predicates
 	 * @param fileURL
 	 * @param splitString
 	 * @return List<String[]>
+	 * @throws IOException 
 	 * */
-	public List<Tuple> loadRules(String DBurl, String fileURL,String splitString){
+	public List<Tuple> loadRules(String DBurl, String fileURL,String splitString) throws IOException{
 		System.out.println(">>> Getting Predicates.......");
+		
 		FileReader reader;
 		String[] reason_predicates = null;
 		String[] result_predicates = null;
@@ -161,7 +193,7 @@ public class Rule {
 	        	t.reason = reason_predicates;
 	        	t.result = result_predicates;
 	        	
-	        	//t.setReasonAttributeIndex(findAttributeIndex(reason_predicates, header));	//淇濆瓨reason鐨刟ttribute IDs
+	        	//t.setReasonAttributeIndex(findAttributeIndex(reason_predicates, header));	//娣囨繂鐡╮eason閻ㄥ垷ttribute IDs
 	        	
 	        	String[] combine = new String[reason_length+result_length];
 	        	System.arraycopy(reason_predicates, 0, combine, 0, reason_length);
@@ -189,10 +221,11 @@ public class Rule {
 	}
 	
 	/**
-	 * 鏍煎紡鍖栨暟鎹泦锛屼娇鍏剁鍚圡LN鐨勮緭鍏ユ墍闇�
+	 * 閺嶇厧绱￠崠鏍ㄦ殶閹诡噣娉﹂敍灞煎▏閸忓墎顑侀崥鍦N閻ㄥ嫯绶崗銉﹀闂囷拷
 	 * @param outFile
+	 * @throws IOException 
 	 */
-	public void formatEvidence(String outFile){
+	public void formatEvidence(String outFile) throws IOException{
 		String content = "";
 		//Clean all the out content in 'outFile'
         FileWriter fw;
@@ -249,44 +282,51 @@ public class Rule {
         writeToFile(content, outFile);
 		System.out.println(">> Writing Completed!");
 
-		// 杩炴帴瀛楃涓诧紝鏍煎紡锛� "jdbc:鏁版嵁搴撻┍鍔ㄥ悕绉�://鏁版嵁搴撴湇鍔″櫒ip/鏁版嵁搴撳悕绉�"
-//		String url = Config.db_url;
-//		String username = Config.db_username;
-//		String password = Config.db_password;
-//
-//		try {
-//			Class.forName("org.postgresql.Driver").newInstance();
-//			Connection conn = DriverManager.getConnection(url, username, password);
-//			Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-////			ResultSet rs;
-//			String sql = "DROP TABLE IF EXISTS temp CASCADE;";
-//			stmt.execute(sql);
-//			
-//			sql = "CREATE TABLE temp(";
-//			for(int i=0; i<header.length; i++){
-//				sql += i==header.length-1?header[i]+" bigint);":header[i]+" bigint,";
-//			}
-//			System.out.println(sql);
-//			stmt.execute(sql);
-//			for (Tuple t : tupleList){
-//				sql = "INSERT INTO temp VALUES(";
-//				for (int i = 0;i < t.getContext().length; i++){
-//					String item = t.getContext()[i];
-//					sql += i==t.getContext().length-1?map.get(item).getIndex():map.get(item).getIndex() + ",";
-//				}
-//				sql += ");";
-//				stmt.execute(sql);
-//			}
-//			stmt.close();
-//			conn.close();
-//		}
-//		catch (Exception e){
-//			e.printStackTrace();
-//		}
+		String url = Config.db_url;
+		String username = Config.db_username;
+		String password = Config.db_password;
+		
+		try {
+			Class.forName("org.postgresql.Driver").newInstance();
+			Connection conn = DriverManager.getConnection(url, username, password);
+			Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			
+			String sql = "DROP TABLE IF EXISTS temp CASCADE;";
+			stmt.execute(sql);
+			
+			sql = "CREATE TABLE temp(";
+			for(int i=0; i<header.length; i++){
+				sql += i==header.length-1?header[i]+" bigint);":header[i]+" bigint,";
+			}
+			System.out.println(sql);
+			stmt.execute(sql);
+			//新建表
+			sql = "CREATE INDEX temp_idx ON temp (";
+			for(int i=0; i<header.length; i++){
+				sql += i==header.length-1?header[i]+");":header[i]+", ";
+			}
+			System.out.println(sql);
+			stmt.execute(sql);
+			//新建索引
+			for (Tuple t : tupleList){
+				sql = "INSERT INTO temp VALUES(";
+				for (int i = 0;i < t.getContext().length; i++){
+					String item = t.getContext()[i];
+					sql += i==t.getContext().length-1?map.get(item).getIndex():map.get(item).getIndex() + ",";
+				}
+				sql += ");";
+				stmt.execute(sql);
+			}
+			stmt.close();
+			conn.close();
+		}
+		catch (Exception e){
+			e.printStackTrace();
+		}
 	}
 	
 	/**
-	 * 鏍煎紡鍖朢ules, 灏嗗懡棰樺叕寮忚浆鎹负涓�闃惰皳璇嶉�昏緫褰㈠紡
+	 * 閺嶇厧绱￠崠鏈les, 鐏忓棗鎳℃０妯哄彆瀵繗娴嗛幑顫礋娑擄拷闂冩儼鐨崇拠宥夛拷鏄忕帆瑜般垹绱�
 	 * @param fileURL
 	 * @param outFile
 	 */
@@ -306,8 +346,8 @@ public class Rule {
         	fw.close();
 	        
 	        while((str = br.readLine()) != null && str.length()!=0){
-	        	firstOrderLogic = "1\t";//add銆�default weight 娣诲姞榛樿鏉冮噸weight=1
-	        	String[] line = str.split("=>");//鍒嗕负鈥樺師鍥爎eason鈥欏拰鈥樼粨鏋渞esult鈥欎袱涓儴鍒�
+	        	firstOrderLogic = "1\t";//add閵嗭拷default weight 濞ｈ濮炴妯款吇閺夊啴鍣竪eight=1
+	        	String[] line = str.split("=>");//閸掑棔璐熼垾妯哄斧閸ョ垘eason閳ユ瑥鎷伴垾妯肩波閺嬫笧esult閳ユ瑤琚辨稉顏堝劥閸掞拷
 	        	
 	        	String[] reason = line[0].replaceAll("\\[", "").replaceAll("\\]", "").split(",");
 	        	String[] result = line[1].replaceAll("\\[", "").replaceAll("\\]", "").split(",");
@@ -369,7 +409,7 @@ public class Rule {
 		this.value = value;
 	}
 	
-	public static void writeToFile(String content, String outFile){	//鎶奵ontent鐨勫唴瀹硅拷鍔犲啓鍏ユ枃浠�
+	public static void writeToFile(String content, String outFile){	//閹跺サontent閻ㄥ嫬鍞寸�圭鎷烽崝鐘插晸閸忋儲鏋冩禒锟�
 		BufferedWriter out = null;
 		try {
 			out = new BufferedWriter(new OutputStreamWriter(
@@ -397,7 +437,7 @@ public class Rule {
 	        String str = null;
 	        while((str = br.readLine()) != null){
 	        	
-	        	String[] line = str.split("=>");//鍒嗕负鈥樺師鍥爎eason鈥欏拰鈥樼粨鏋渞esult鈥欎袱涓儴鍒�
+	        	String[] line = str.split("=>");//閸掑棔璐熼垾妯哄斧閸ョ垘eason閳ユ瑥鎷伴垾妯肩波閺嬫笧esult閳ユ瑤琚辨稉顏堝劥閸掞拷
 	        	
 	        	String[] reason = line[0].replaceAll("\\[", "").replaceAll("\\]", "").split(",");
 	        	String[] result = line[1].replaceAll("\\[", "").replaceAll("\\]", "").split(",");
@@ -455,7 +495,7 @@ public class Rule {
 	 * Init Data
 	 * */
 	public void initData(String fileURL,String splitString,boolean ifHeader){//check if the data has header
-		// read file content from file 璇诲彇鏂囦欢鍐呭
+		// read file content from file
         FileReader reader;
 		try {
 			reader = new FileReader(fileURL);

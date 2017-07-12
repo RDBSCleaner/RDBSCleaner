@@ -1,0 +1,5 @@
+ProviderID(valueProviderID)
+City(valueCity)
+State(valueState)
+ZIPCode(valueZIPCode)
+PhoneNumber(valuePhoneNumber)

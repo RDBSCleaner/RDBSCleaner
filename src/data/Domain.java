@@ -8,13 +8,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.sun.org.apache.xalan.internal.xsltc.runtime.Attributes;
-
+import jdk.nashorn.internal.ir.annotations.Ignore;
 
 public class Domain {
 	
@@ -118,15 +116,6 @@ public class Domain {
 	        		String[] tuple = str.split(splitString);
 	        		
 	        		dataSet.put(key, tuple);
-	        		
-//	        		if(!flag){
-//	        			length = tuple.length;
-//			        	header = new String[length];
-//			        	for(int i=1;i<=length;i++){
-//			        		header[i-1]="Attr"+i;
-//			        	}
-//			        	flag = true;
-//	        		}
 		        	
 	        		for(int i=0;i<rules_size;i++){	//为每一条rule划分数据集区域Di
 		        		Tuple curr_rule = rules.get(i);
@@ -196,7 +185,8 @@ public class Domain {
 			map.put(bigIDs[i], 1);
 		}
 		int i = 0;
-		for(;IDs[i]!=-1;i++){
+		
+		for(;i<IDs.length && IDs[i]!=-1;i++){
 			Integer value = map.get(IDs[i]);
 			if(null!=value){
 				count++;
@@ -278,12 +268,12 @@ public class Domain {
 				Domain_to_Groups.add(groups);
 			}
 		}
-		int d_index=0;
+//		int d_index=0;
 //		for(List<HashMap<Integer, Tuple>> d: Domain_to_Groups){
 //			System.out.println("\n*******Domain "+(++d_index)+"*******");
 //			printGroup(d);
 //		}
-		//printGroup(groups);
+//		printGroup(groups);
 	}
 	
 	/**
@@ -332,7 +322,7 @@ public class Domain {
 		}
 		
 		//输出修正后的Group结果
-		System.out.println("\n=======After Correct Values By MLN Probability=======");
+//		System.out.println("\n=======After Correct Values By MLN Probability=======");
 //		int d_index = 0;
 //		for(List<HashMap<Integer, Tuple>> groups: Domain_to_Groups){
 //			System.out.println("\n*******Domain "+(++d_index)+"*******");
@@ -347,10 +337,22 @@ public class Domain {
 	 * @param HashMap<Integer,String[]> dataSet
 	 * */
 	public void deleteDuplicate(List<List<Integer>> keyList_list, HashMap<Integer,String[]> dataSet){
+//		System.out.println("\tDuplicate keys: ");
 		for(List<Integer> keyList: keyList_list){
+			if(keyList==null) continue;
 			for(int i=0;i<keyList.size()-1;i++){
-				int key = keyList.get(i);
-				dataSet.remove(key);
+				int key1 = keyList.get(i);
+				String[] pre_tuple = dataSet.get(key1);
+//				System.out.print("\tGROUP "+i+":"+key1+" ");
+				for(int j=i+1;j<keyList.size();j++){
+					int key2 = keyList.get(j);
+					String[] curr_tuple = dataSet.get(key2);
+					if(Arrays.toString(pre_tuple).equals(Arrays.toString(curr_tuple))){
+//						System.out.print(key2+" ");
+						dataSet.remove(key2);
+					}
+				}
+//				System.out.println();
 			}
 		}
 	}
@@ -374,7 +376,7 @@ public class Domain {
 	 * */
 	public Tuple combineTuple (Tuple t1 , Tuple t2, int[] sameID){
 		Tuple t = new Tuple();
-		if(sameID.length==0){ //不存在相同的属性
+		if(sameID.length==0 || (sameID.length>0 && sameID[0]== -1)){ //不存在相同的属性
 			int[] attributeIndex = concat(t1.getAttributeIndex(), t2.getAttributeIndex());
 			String[] TupleContext = concat(t1.getContext(), t2.getContext());
 
@@ -510,9 +512,16 @@ public class Domain {
 				newGroup.put(key, combineTuple(t1, t2, sameID));
 				ki++;
 			}else{
+				System.out.println("Conflict:");
+				System.out.println("\tcontext1 = "+Arrays.toString(group1.get(key).TupleContext));
+				System.out.println("\tcontext2 = "+Arrays.toString(group2.get(key).TupleContext));
 				group1.remove(key);
 				group2.remove(key);
-				keyList.remove(key);
+				System.out.println("\tKEY = "+key+" ki = "+ki);
+//				for(int m = 0;m<keyList.size();m++){
+//					System.out.println(keyList.get(m));
+//				}
+				keyList.remove(ki);
 				
 				//根据DomainID将冲突的Tuple记录下来
 				ct1.setConflictIDs(sameID);
@@ -598,6 +607,7 @@ public class Domain {
 					break;
 				}else cti++;
 			}
+			if(cti==ct.AttributeIndex.length || ti==t.AttributeIndex.length)return false;
 			if(t.TupleContext[ti].equals(ct.TupleContext[cti]))count++;
 		}
 		if(count == i)result = true;
@@ -607,7 +617,7 @@ public class Domain {
 	/**
 	 * 为冲突元组找到候选的替换方案
 	 * */
-	public void findCandidate(HashMap<Integer,Conflicts> conflicts , List<List<HashMap<Integer, Tuple>>> Domain_to_Groups, List<HashMap<Integer, Tuple>> domains, HashMap<String, Double> attributesPROB){
+	public void findCandidate(HashMap<Integer,Conflicts> conflicts , List<List<HashMap<Integer, Tuple>>> Domain_to_Groups, List<HashMap<Integer, Tuple>> domains, HashMap<String, Double> attributesPROB, ArrayList<Integer> ignoredIDs){
 		
 		Tuple candidateTuple = new Tuple();
 		
@@ -633,11 +643,22 @@ public class Domain {
 					int[] sameID = findSameID(firstTuple.AttributeIndex, combinedTuple.AttributeIndex);
 					if(sameID[0]!=-1){
 						List<HashMap<Integer, Tuple>> cur_groups = Domain_to_Groups.get(i);
+//						int for_i = 0;
 						for(HashMap<Integer, Tuple> group: cur_groups){
 							Iterator<Entry<Integer, Tuple>> iter = group.entrySet().iterator();
+							
+//							int test_i = 0;
+//							System.err.println("iterator i = "+for_i++);
+//							if(for_i==21){
+//								System.out.println("debug here");
+//							}
 							while(iter.hasNext()){
 								Entry<Integer, Tuple> en = iter.next();
 								Tuple t = en.getValue();
+//								System.err.println("test i = "+test_i++);
+//								if(test_i==40){
+//									System.out.println("debug here");
+//								}
 								if(ifContains(sameID, t.AttributeIndex) && ifSameValue(sameID, t, ct)){
 									flag[i] = true;
 									combinedTuple = combineTuple(combinedTuple, t, sameID);
@@ -692,9 +713,27 @@ public class Domain {
 	            }
 			}
 			//修改dataset中这一条的数据
-			dataSet.put(tupleID, candidateTuple.TupleContext);
+			String[] ignoredValues = new String[ignoredIDs.size()];
+			for(int i=0;i<ignoredIDs.size();i++){
+				ignoredValues[i] = dataSet.get(tupleID)[ignoredIDs.get(i)];
+			}
+			String[] newTupleContext = new String[header.length];
+			for(int i=0;i<header.length;i++){
+				for(int j=0;j<ignoredIDs.size();j++){
+					if(i==ignoredIDs.get(j)){
+						newTupleContext[i] = ignoredValues[j];
+					}
+				}
+				for(int k=0;k<candidateTuple.AttributeIndex.length;k++){
+					if(i==candidateTuple.AttributeIndex[k]){
+						newTupleContext[i] = candidateTuple.TupleContext[k];
+					}
+				}
+			}
+//			String[] newTupleContext = concat(ignoredValues, candidateTuple.TupleContext);
+			dataSet.put(tupleID, newTupleContext);
+			System.out.println("\ntupleID = ["+tupleID+"] candidate Tuple = "+Arrays.toString(newTupleContext));
 		}
-		System.out.println("\ncandidate Tuple = "+Arrays.toString(candidateTuple.TupleContext));
 		
 	}
 	
@@ -724,15 +763,14 @@ public class Domain {
 			int cur_groups_index = 0;
 			int cur_groups_size = cur_groups.size();
 			
-			boolean[] flags = new boolean[cur_groups_size];
-			
 			while(pre_groups_index < pre_groups_size && cur_groups_index < cur_groups_size){
-//				if(flags[cur_groups_index]){
-//					cur_groups_index++;
-//					continue;
-//				}
+
 				HashMap<Integer, Tuple> cur_group = cur_groups.get(cur_groups_index);
 				HashMap<Integer, Tuple> pre_group = pre_groups.get(pre_groups_index);
+
+				if(pre_groups_index==138){
+					System.err.println("xxxx:::"+pre_groups_index);
+				}
 				
 				//求两个group的交集
 				List<Integer> keyList = interset(calculateKeys(pre_group) , calculateKeys(cur_group));
@@ -741,35 +779,33 @@ public class Domain {
 					pre_group = combineGroup(keyList, pre_group, cur_group, preDomainID, curDomainID);
 					
 					if(null==pre_group){
-//						flags[cur_groups_index]=true;
-						keysList.remove(pre_groups_index);
+						System.out.println("xxxx::"+pre_groups_index);
+						keysList.set(pre_groups_index, null);
 						pre_groups_index++;
+//						keysList.remove(pre_groups_index);
 						continue;
 					}
-					keysList.set(pre_groups_index, keyList);
+					if(keysList.get(pre_groups_index)!=null){
+						keysList.set(pre_groups_index, keyList);
+					}
 					pre_groups_index++;
-//					flags[cur_groups_index]=true;
 					continue;
-					
 				}
-				if(cur_groups_index == (cur_groups_size-1)){
+				cur_groups_index++;
+				if(cur_groups_index == cur_groups_size){
 					cur_groups_index=0;
-				}else{
-					cur_groups_index++;
+					pre_groups_index++;
 				}
 			}
 			preDomainID = i;
-//			for(int k=0;k<flags.length;k++){
-//				if(!flags[k]) keysList.remove(k);
-//			}
 		}
 		
 		//===========test==========
-		int d_index = 0;
-		for(List<HashMap<Integer, Tuple>> groups: Domain_to_Groups){
-			System.out.println("\n*******Domain "+(++d_index)+"*******");
+//		int d_index = 0;
+//		for(List<HashMap<Integer, Tuple>> groups: Domain_to_Groups){
+//			System.out.println("\n*******Domain "+(++d_index)+"*******");
 //			printGroup(groups);
-		}
+//		}
 		 //===========test==========
 		
 		System.out.println(">>> Fix the error values...");

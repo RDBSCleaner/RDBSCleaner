@@ -1,0 +1,3 @@
+ZIPCode(valueZIPCode) => State(valueState)
+PhoneNumber(valuePhoneNumber) => ZIPCode(valueZIPCode)
+City(valueCity) , PhoneNumber(valuePhoneNumber) => ProviderID(valueProviderID)
